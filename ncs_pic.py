@@ -113,7 +113,7 @@ ap.add_argument("-i", "--image", required=True,
         help="path to input image")
 args = vars(ap.parse_args())
 
-output_name = 'object_detection_result.jpg'
+output_name = "interior_Intel.jpg"
 
 fps1 = FPS().start()
 # grab a list of all NCS devices plugged in to USB
