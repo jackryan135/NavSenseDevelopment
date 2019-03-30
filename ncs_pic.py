@@ -113,6 +113,8 @@ ap.add_argument("-i", "--image", required=True,
         help="path to input image")
 args = vars(ap.parse_args())
 
+output_name = 'object_detection_result.jpg'
+
 fps1 = FPS().start()
 # grab a list of all NCS devices plugged in to USB
 #print("[INFO] finding NCS devices...")
@@ -201,6 +203,8 @@ if args["display"] > 0:
 	# display the frame to the screen
 	cv2.imshow("Output", image_for_result)
 	key = cv2.waitKey(1) & 0xFF
+        cv2.imwrite(output_name,image_for_result)
+        #image_for_result.save(output_name)
 
 # update the FPS counter
 #fps.update()
