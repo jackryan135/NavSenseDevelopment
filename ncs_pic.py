@@ -11,6 +11,7 @@ import numpy as np
 import time
 import cv2
 
+
 # initialize the list of class labels our network was trained to
 # detect, then generate a set of bounding box colors for each class
 CLASSES = ("background", "aeroplane", "bicycle", "bird",
@@ -141,6 +142,8 @@ with open(args["graph"], mode="rb") as f:
 #print("[INFO] allocating the graph on the NCS...")
 graph = device.AllocateGraph(graph_in_memory)
 
+#GPIO.output(end_pin,GPIO.LOW)
+#GPIO.output(end_pin,GPIO.HIGH)
 fps1.stop()
 
 # open a pointer to the video stream thread and allow the buffer to
@@ -162,6 +165,10 @@ image_for_result = cv2.resize(image_for_result, DISPLAY_DIMS)
 fps2= FPS().start()
 predictions = predict(frame, graph)
 fps2.stop()
+
+#time.sleep(.5)
+#GPIO.output(start_pin,0)
+#GPIO.output(end_pin,0)
 
 # loop over our predictions
 for (i, pred) in enumerate(predictions):
@@ -230,6 +237,8 @@ if args["display"] > 0:
 graph.DeallocateGraph()
 device.CloseDevice()
 
+
 # display FPS information
 print("[INFO] Setup Time: {:.5f}".format(fps1.elapsed()))
 print("[INFO] Inference Time: {:.5f}".format(fps2.elapsed()))
+
