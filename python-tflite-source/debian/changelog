@@ -1,0 +1,23 @@
+edgetpu-api (3-1) mendel-beaker; urgency=medium
+
+  * Replace SeeFood with iNat bird model
+
+ -- AIY Projects <support-aiyprojects@google.com>  Mon, 28 Jan 2019 14:10:00 -0800
+
+edgetpu-api (2-1) mendel-beaker; urgency=medium
+
+  * Update libedgetpu binaries
+
+ -- AIY Projects <support-aiyprojects@google.com>  Tue, 22 Jan 2019 10:42:07 -0800
+
+edgetpu-api (1-1) mendel-beaker; urgency=medium
+
+  * Cut for beaker release and normalization of version.
+  
+ -- AIY Projects <support-aiyprojects@google.com>  Wed, 16 Jan 2019 12:00:00 -0800
+
+edgetpu-api (0.1) UNRELEASED; urgency=medium
+
+  * Initial release.
+
+ -- AIY Projects <support-aiyprojects@google.com>  Mon, 04 Jun 2018 16:14:00 -0800
