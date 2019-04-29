@@ -32,11 +32,10 @@ def ReadLabelFile(file_path):
   return ret
 
 def hardware_interrupt():
-  times_pressed = 0
   GPIO.setmode(GPIO.BOARD)
   GPIO.setup(3,GPIO.IN)
   while(1):
-    i,times_pressed = GPIO.input(3)
+    times_pressed = GPIO.input(3)
     time.sleep(0.2)
     times_pressed = times_pressed + GPIO.input(3)
     if(times_pressed == 1):
