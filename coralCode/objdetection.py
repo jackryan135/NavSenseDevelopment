@@ -68,22 +68,17 @@ def main():
   engine = DetectionEngine(args.model)
   labels = ReadLabelFile(args.label) if args.label else None
   result = None
+  camera = PiCamera()
   # Initialize Threads
   ttx_t = Thread(target = text_to_speech,args = (result,labels))
   button_t = Thread(target = hardware_interrupt)
 
   # Initialize Hardware Interrupt
   button_t.start()
-  with picamera.PiCamera() as camera:
-    camera.resolution = (640, 480)
-    camera.framerate = 30
-    _, width, height, channels = engine.get_input_tensor_shape()
-    stream = io.BytesIO()
+  
   while True:
-    camera.capture(stream,format='rgb', use_video_port=True, resize=(width, height))
-    stream.truncate()
-    stream.seek(0)
-    input = np.frombuffer(stream.getvalue(), dtype=np.uint8)
+    camera.capture('/home/pi/Desktop/NavSense/coralCode/image.jpg')
+    image = Image.open('image.jpg')
     result = engine.DetectWithImage(input, threshold = 0.25, keep_aspect_ratio = True, relative_coord = False, top_k = 5)
     if results:
       # Start thread to run text to speech, when done, quit thread
