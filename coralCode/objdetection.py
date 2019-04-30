@@ -13,6 +13,7 @@ import argparse
 import platform
 import subprocess
 import picamera
+import io
 import RPi.GPIO as GPIO
 from edgetpu.detection.engine import DetectionEngine
 from PIL import Image
@@ -34,7 +35,7 @@ def ReadLabelFile(file_path):
     ret[int(pair[0])] = pair[1].strip()
   return ret
 
-def hardware_interrupt(ttx_t):
+def hardware_interrupt():
   GPIO.setmode(GPIO.BOARD)
   GPIO.add_event_detect(3,GPIO.RISING)
   while True:
@@ -48,10 +49,6 @@ def hardware_interrupt(ttx_t):
       button_mutex.acquire()
       interrupt = 1 
       button_mutex.release()
-      if ttx_t.isAlive():
-        ttx_mutex.acquire()
-        stop_ttx = 1 
-        ttx_mutex.release()
 
 def text_to_speech(result,labels):
   # Jack's Code
@@ -72,7 +69,7 @@ def main():
   result = None
   # Initialize Threads
   ttx_t = Thread(target = text_to_speech,args = (result,labels))
-  button_t = Thread(target = hardware_interrupt,args = (ttx_t))
+  button_t = Thread(target = hardware_interrupt)
 
   # Initialize Hardware Interrupt
   button_t.start()
