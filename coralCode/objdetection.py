@@ -77,7 +77,7 @@ def main():
   button_t.start()
   
   while True:
-    camera.capture('/home/pi/Desktop/NavSense/coralCode/image.jpg')
+    camera.capture('/home/pi/NavSense/coralCode/image.jpg')
     image = Image.open('image.jpg')
     result = engine.DetectWithImage(image, threshold = 0.25, keep_aspect_ratio = True, relative_coord = False, top_k = 5)
     if result:
