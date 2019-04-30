@@ -79,8 +79,8 @@ def main():
   while True:
     camera.capture('/home/pi/Desktop/NavSense/coralCode/image.jpg')
     image = Image.open('image.jpg')
-    result = engine.DetectWithImage(input, threshold = 0.25, keep_aspect_ratio = True, relative_coord = False, top_k = 5)
-    if results:
+    result = engine.DetectWithImage(image, threshold = 0.25, keep_aspect_ratio = True, relative_coord = False, top_k = 5)
+    if result:
       # Start thread to run text to speech, when done, quit thread
       call_text_to_speech.start(result,labels)
 
