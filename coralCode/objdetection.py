@@ -109,7 +109,7 @@ def main():
               break
           finally:
             button_mutex.release() 
-          if(elapsed_ms > 50000) :
+          if elapsed_ms > 50000:
             break
 
 if __name__ == '__main__':
