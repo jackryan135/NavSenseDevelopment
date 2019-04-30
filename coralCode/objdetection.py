@@ -33,26 +33,22 @@ def ReadLabelFile(file_path):
 
 def hardware_interrupt():
   GPIO.setmode(GPIO.BOARD)
-  GPIO.setup(3,GPIO.IN)
-  while(1):
-    times_pressed = GPIO.input(3)
-    time.sleep(0.2)
-    times_pressed = times_pressed + GPIO.input(3)
-    if(times_pressed == 1):
+  GPIO.add_event_detect(3,GPIO.RISING)
+  while True:
+    if GPIO.event_detected(3):
+      # if button pressed again within 2 seconds, shutdown
+      stop = time.time() + 2
+      while time.time() < stop:
+        if GPIO.event_detected(3):
+         GPIO.cleanup()
+         call("sudo shutdown -h now") 
       mutex.acquire()
       try:
         interrupt = 1 
       finally:
         mutex.release()
-    elif(times_pressed == 2):
-      mutex.acquire()
-      try:
-        interrupt = 2
-      finally:
-        mutex.release()
-    time.sleep(0.25)
 
-def text_to_speech():
+def text_to_speech(result,labels):
   # Jack's Code
   print("Running Text To Speech")
 
@@ -71,8 +67,9 @@ def main():
 
   # Initialize Threads
   button_t = Thread(target = hardware_interrupt)
-  text_to_speech_t = Thread(target = text_to_speech)
+  text_to_speech_t = Thread(target = text_to_speech,args = (result,args))
 
+  # Initialize Hardware Interrupt
   button_t.start()
   with picamera.PiCamera() as camera:
     camera.resolution = (640, 480)
@@ -80,7 +77,7 @@ def main():
     _, width, height, channels = engine.get_input_tensor_shape()
     try:
       stream = io.BytesIO()
-      while(1):
+      while True:
         for foo in camera.capture(stream,format='rgb', use_video_port=True, resize=(width, height)): 
           stream.truncate()
           stream.seek(0)
@@ -88,18 +85,16 @@ def main():
           result = engine.DetectWithImage(input, threshold = 0.25, keep_aspect_ratio = True, relative_coord = False, top_k = 5)
           if results:
             # Start thread to run text to speech, when done, quit thread
-            call_text_to_speech.start()
+            call_text_to_speech.start(result,args)
 
-        # Button Hardware Interrupt Code
+        # Sleep and check for hardware interrupt code
         start_ms = time.time()
-        while(1):	
+        while True:	
           time.sleep(0.25)
           elapsed_ms = time.time() - start_ms
           mutex.acquire()
           try:
-            if(interrupt == 2):
-              call("sudo shutdown -h now")
-            elif(interrupt == 1):
+            if interrupt == 1:
               interupt = 0 
               mutex.release()
               break
