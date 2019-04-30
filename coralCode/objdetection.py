@@ -38,11 +38,11 @@ def hardware_interrupt(ttx_t):
   GPIO.setmode(GPIO.BOARD)
   GPIO.add_event_detect(3,GPIO.RISING)
   while True:
-    if GPIO.event_detected(3):
+    if GPIO.event_detected(3) or input() :
       # if button pressed again within 2 seconds, shutdown
       stop = time.time() + 2
       while time.time() < stop:
-        if GPIO.event_detected(3):
+        if GPIO.event_detected(3) or input():
          GPIO.cleanup()
          call("sudo shutdown -h now") 
       button_mutex.acquire()
