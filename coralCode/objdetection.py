@@ -37,14 +37,14 @@ def ReadLabelFile(file_path):
 
 def hardware_interrupt():
   GPIO.setmode(GPIO.BOARD)
-  GPIO.setup(3,GPIO.IN)
+  GPIO.setup(3,GPIO.IN,pull_up_down=GPIO.PUD_UP)
   GPIO.add_event_detect(3,GPIO.RISING)
   while True:
-    if GPIO.event_detected(3) or input() :
+    if GPIO.event_detected(3):
       # if button pressed again within 2 seconds, shutdown
       stop = time.time() + 2
       while time.time() < stop:
-        if GPIO.event_detected(3) or input():
+        if GPIO.event_detected(3):
          GPIO.cleanup()
          call("sudo shutdown -h now") 
       button_mutex.acquire()
@@ -82,7 +82,7 @@ def main():
     result = engine.DetectWithImage(image, threshold = 0.25, keep_aspect_ratio = True, relative_coord = False, top_k = 5)
     if result:
       # Start thread to run text to speech, when done, quit thread
-      call_text_to_speech.start(result,labels)
+      text_to_speech.start(result,labels)
 
     # Sleep and check for hardware interrupt code
     start_ms = time.time()
