@@ -83,7 +83,7 @@ def main():
     result = engine.DetectWithImage(image, threshold = 0.25, keep_aspect_ratio = True, relative_coord = False, top_k = 5)
     if result:
       # Start thread to run text to speech, when done, quit thread
-      text_to_speech.start(result,labels)
+      ttx_t.start(result,labels)
 
     # Sleep and check for hardware interrupt code
     start_ms = time.time()
