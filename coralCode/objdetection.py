@@ -37,6 +37,7 @@ def ReadLabelFile(file_path):
 
 def hardware_interrupt():
   GPIO.setmode(GPIO.BOARD)
+  GPIO.setup(3,GPIO.IN)
   GPIO.add_event_detect(3,GPIO.RISING)
   while True:
     if GPIO.event_detected(3) or input() :
