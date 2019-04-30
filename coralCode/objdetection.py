@@ -69,9 +69,9 @@ def main():
   # Initialize engine.
   engine = DetectionEngine(args.model)
   labels = ReadLabelFile(args.label) if args.label else None
-
+  result = None
   # Initialize Threads
-  ttx_t = Thread(target = text_to_speech,args = (result,args))
+  ttx_t = Thread(target = text_to_speech,args = (result,labels))
   button_t = Thread(target = hardware_interrupt,args = (ttx_t))
 
   # Initialize Hardware Interrupt
@@ -89,7 +89,7 @@ def main():
       result = engine.DetectWithImage(input, threshold = 0.25, keep_aspect_ratio = True, relative_coord = False, top_k = 5)
       if results:
         # Start thread to run text to speech, when done, quit thread
-        call_text_to_speech.start(result,args)
+        call_text_to_speech.start(result,labels)
 
       # Sleep and check for hardware interrupt code
       start_ms = time.time()
