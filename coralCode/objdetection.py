@@ -112,5 +112,5 @@ def main():
           if(elapsed_ms > 50000) :
             break
 
-  if __name__ == '__main__':
-    main()
+if __name__ == '__main__':
+  main()
