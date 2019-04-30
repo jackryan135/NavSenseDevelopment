@@ -12,7 +12,7 @@ Example:
 import argparse
 import platform
 import subprocess
-import picamera as PiCamera
+from picamera import PiCamera
 import io
 import RPi.GPIO as GPIO
 from edgetpu.detection.engine import DetectionEngine
