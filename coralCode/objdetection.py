@@ -18,8 +18,11 @@ from edgetpu.detection.engine import DetectionEngine
 from PIL import Image
 from threading import Thread, Lock
 
-mutex = Lock()
+button_mutex = Lock()
+ttx_mutex = Lock()
 interrupt = 0
+# Exit ttx function when set to 1
+stop_ttx = 0
 
 # Function to read labels from text files.
 def ReadLabelFile(file_path):
@@ -31,7 +34,7 @@ def ReadLabelFile(file_path):
     ret[int(pair[0])] = pair[1].strip()
   return ret
 
-def hardware_interrupt():
+def hardware_interrupt(ttx_t):
   GPIO.setmode(GPIO.BOARD)
   GPIO.add_event_detect(3,GPIO.RISING)
   while True:
@@ -42,11 +45,17 @@ def hardware_interrupt():
         if GPIO.event_detected(3):
          GPIO.cleanup()
          call("sudo shutdown -h now") 
-      mutex.acquire()
+      button_mutex.acquire()
       try:
         interrupt = 1 
       finally:
-        mutex.release()
+        button_mutex.release()
+      if ttx_t.isAlive():
+        ttx_mutex.acquire()
+        try:
+          stop_ttx = 1 
+        finally:
+          ttx_mutex.release()
 
 def text_to_speech(result,labels):
   # Jack's Code
@@ -66,8 +75,8 @@ def main():
   labels = ReadLabelFile(args.label) if args.label else None
 
   # Initialize Threads
-  button_t = Thread(target = hardware_interrupt)
-  text_to_speech_t = Thread(target = text_to_speech,args = (result,args))
+  ttx_t = Thread(target = text_to_speech,args = (result,args))
+  button_t = Thread(target = hardware_interrupt,args = (ttx_t))
 
   # Initialize Hardware Interrupt
   button_t.start()
@@ -92,14 +101,14 @@ def main():
         while True:	
           time.sleep(0.25)
           elapsed_ms = time.time() - start_ms
-          mutex.acquire()
+          button_mutex.acquire()
           try:
             if interrupt == 1:
               interupt = 0 
-              mutex.release()
+              button_mutex.release()
               break
           finally:
-            mutex.release() 
+            button_mutex.release() 
           if(elapsed_ms > 50000) :
             break
 
