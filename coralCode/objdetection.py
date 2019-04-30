@@ -80,28 +80,28 @@ def main():
     _, width, height, channels = engine.get_input_tensor_shape()
     stream = io.BytesIO()
   while True:
-    for foo in camera.capture(stream,format='rgb', use_video_port=True, resize=(width, height)): 
-      stream.truncate()
-      stream.seek(0)
-      input = np.frombuffer(stream.getvalue(), dtype=np.uint8)
-      result = engine.DetectWithImage(input, threshold = 0.25, keep_aspect_ratio = True, relative_coord = False, top_k = 5)
-      if results:
-        # Start thread to run text to speech, when done, quit thread
-        call_text_to_speech.start(result,labels)
+    camera.capture(stream,format='rgb', use_video_port=True, resize=(width, height))
+    stream.truncate()
+    stream.seek(0)
+    input = np.frombuffer(stream.getvalue(), dtype=np.uint8)
+    result = engine.DetectWithImage(input, threshold = 0.25, keep_aspect_ratio = True, relative_coord = False, top_k = 5)
+    if results:
+      # Start thread to run text to speech, when done, quit thread
+      call_text_to_speech.start(result,labels)
 
-      # Sleep and check for hardware interrupt code
-      start_ms = time.time()
-      while True:	
-        time.sleep(0.25)
-        elapsed_ms = time.time() - start_ms
-        button_mutex.acquire()
-        if interrupt == 1:
-          interupt = 0 
-          button_mutex.release()
-          break
-        button_mutex.release() 
-        if elapsed_ms > 50000:
-          break
+    # Sleep and check for hardware interrupt code
+    start_ms = time.time()
+    while True:	
+      time.sleep(0.25)
+      elapsed_ms = time.time() - start_ms
+      button_mutex.acquire()
+      if interrupt == 1:
+        interupt = 0 
+        button_mutex.release()
+        break
+      button_mutex.release() 
+      if elapsed_ms > 50000:
+        break
 
 if __name__ == '__main__':
   main()
