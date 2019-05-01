@@ -105,7 +105,9 @@ def hardware_interrupt():
         if GPIO.event_detected(3):
          GPIO.cleanup()
          save_settings()
+         os.remove("image.jpg")
          speech.say("Device Turning Off")
+         speech.runAndWait()
          call("sudo shutdown -h now")
       buttonMutex.acquire()
       interrupt = 1
@@ -172,8 +174,9 @@ def main():
   button_t.start()
 
   speech.say("Device Is Ready To Use")
+  speech.runadWait()
   while True:
-    camera.capture('/home/pi/NavSense/coralCode/image.jpg')
+    camera.capture('image.jpg')
     image = Image.open('image.jpg')
 
     result = engine.DetectWithImage(image, threshold = 0.25, keep_aspect_ratio = True, relative_coord = False, top_k = 5)
