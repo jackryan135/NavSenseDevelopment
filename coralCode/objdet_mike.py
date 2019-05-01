@@ -23,12 +23,12 @@ import collections
 import os
 import pyttsx3
 
+# Global Variables
 speech = pyttsx3.init()
-button_mutex = Lock()
-ttx_mutex = Lock()
+buttonMutex = Lock()
 interrupt = 0
-# Exit ttx function when set to 1
-stop_ttx = 0
+speakingSpeed = 150
+volume = 1
 
 def multiples(dictionary, arr):
     st = ''
@@ -52,13 +52,13 @@ def multiples(dictionary, arr):
         st = 'Nothing '
     return st
 
-def countItems(dictionary, arr):
+def count_items(dictionary, arr):
     counter = collections.Counter(arr)
     c = dict(counter)
     str = multiples(dictionary, c)
     return str
 
-def parseObjects(obs):
+def parse_objects(obs):
     left = []
     center = []
     right = []
@@ -75,10 +75,10 @@ def parseObjects(obs):
 
 def constructString(dictionary, objs):
     string = 'There is '
-    left, center, right = parseObjects(objs)
-    lStr = countItems(dictionary, left) + 'to your left. '
-    cStr = countItems(dictionary, center) + 'straight ahead. '
-    rStr = countItems(dictionary, right) + 'to your right.'
+    left, center, right = parse_objects(objs)
+    lStr = count_items(dictionary, left) + 'to your left. '
+    cStr = count_items(dictionary, center) + 'straight ahead. '
+    rStr = count_items(dictionary, right) + 'to your right.'
     string += lStr + cStr + 'And ' + rStr
     return string
 
@@ -103,10 +103,11 @@ def hardware_interrupt():
       while time.time() < stop:
         if GPIO.event_detected(3):
          GPIO.cleanup()
+         speech.say("Device Turning Off")
          call("sudo shutdown -h now")
-      button_mutex.acquire()
+      buttonMutex.acquire()
       interrupt = 1
-      button_mutex.release()
+      buttonMutex.release()
 
 def text_to_speech(result,labels):
   # Jack's Code
@@ -114,9 +115,15 @@ def text_to_speech(result,labels):
   speech.say(string)
   speech.runAndWait()
 
+def set_speaking_speed():
+  speech.setProperty('rate', speakingSpeed)
+
+def set_volume():
+  speech.setProperty('volume',volume)
+
 def main():
-  speech.setProperty('rate', 150)
-  speech.setProperty('volume', 1)
+  set_speaking_speed()
+  set_volume()
 
   speech.say('Welcome to NavSense')
   speech.runAndWait()
@@ -141,6 +148,7 @@ def main():
   # Initialize Hardware Interrupt
   button_t.start()
 
+  speech.say("Device Is Ready To Use")
   while True:
     camera.capture('/home/pi/NavSense/coralCode/image.jpg')
     image = Image.open('image.jpg')
@@ -155,13 +163,13 @@ def main():
     while True:
       time.sleep(0.25)
       elapsed_ms = time.time() - start_ms
-      button_mutex.acquire()
+      buttonMutex.acquire()
       if interrupt == 1:
         interupt = 0
-        button_mutex.release()
+        buttonMutex.release()
         break
 
-      button_mutex.release()
+      buttonMutex.release()
       if elapsed_ms > 5:
         break
 
