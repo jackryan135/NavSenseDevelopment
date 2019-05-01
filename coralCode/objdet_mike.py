@@ -140,8 +140,8 @@ def parse_settings():
 def save_settings():
   with open('settings.csv', 'w', newline = '') as csvfile:
       writer = csv.writer(csvfile, delimeter=' ', quoting=csv.QUOTE_NONE)
-      writer.writerows(speakingSpeed)
-      writer.writerows(volume)
+      writer.writerow(speakingSpeed)
+      writer.writerow(volume)
 def main():
   parse_settings()
 
