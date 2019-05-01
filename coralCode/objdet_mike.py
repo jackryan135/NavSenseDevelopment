@@ -19,7 +19,7 @@ import RPi.GPIO as GPIO
 from edgetpu.detection.engine import DetectionEngine
 from PIL import Image
 from threading import Thread, Lock
-from espeak import espeak
+import os
 
 button_mutex = Lock()
 ttx_mutex = Lock()
@@ -112,10 +112,10 @@ def text_to_speech(result,labels):
   # Jack's Code
   print("Running Text To Speech")
   string = constructString(labels, result)
-  espeak.synth(string)
+  os.system('espeak ' + string)
 
 def main():
-  espeak.synth('Welcome to NavSense')
+  os.system('espeak Welcome to NavSense')
   # Parse Arguments
   parser = argparse.ArgumentParser()
   parser.add_argument(
@@ -125,7 +125,7 @@ def main():
   args = parser.parse_args()
 
   # Initialize engine.
-  espeak.synth('Loading Object Recognition Models')
+  os.system('espeak Loading Object Recognition Models')
   engine = DetectionEngine(args.model)
   labels = ReadLabelFile(args.label) if args.label else None
   result = None
