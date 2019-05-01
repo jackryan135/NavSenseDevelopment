@@ -31,12 +31,13 @@ interrupt = 0
 speakingSpeed = 150
 volume = 1
 
+
 def multiples(dictionary, arr):
     st = ''
     if len(arr) != 0:
         for key, value in arr.items():
             if value == 1:
-                st += 'one ' + dictionary[key] + ', '    
+                st += 'one ' + dictionary[key] + ', '
             if value <= 5 and value > 1:
                 st += str(value) + ' '
                 if key != 1:
@@ -53,11 +54,13 @@ def multiples(dictionary, arr):
         st = 'Nothing '
     return st
 
+
 def count_items(dictionary, arr):
     counter = collections.Counter(arr)
     c = dict(counter)
     str = multiples(dictionary, c)
     return str
+
 
 def parse_objects(obs):
     left = []
@@ -74,6 +77,7 @@ def parse_objects(obs):
             center.append(o.label_id)
     return left, center, right
 
+
 def constructString(dictionary, objs):
     string = 'There is '
     left, center, right = parse_objects(objs)
@@ -84,120 +88,132 @@ def constructString(dictionary, objs):
     return string
 
 # Function to read labels from text files.
+
+
 def read_label_file(file_path):
-  with open(file_path, 'r') as f:
-    lines = f.readlines()
-  ret = {}
-  for line in lines:
-    pair = line.strip().split(maxsplit=1)
-    ret[int(pair[0])] = pair[1].strip()
-  return ret
+    with open(file_path, 'r') as f:
+        lines = f.readlines()
+    ret = {}
+    for line in lines:
+        pair = line.strip().split(maxsplit=1)
+        ret[int(pair[0])] = pair[1].strip()
+    return ret
+
 
 def hardware_interrupt():
-  GPIO.setmode(GPIO.BOARD)
-  GPIO.setup(3,GPIO.IN,pull_up_down=GPIO.PUD_UP)
-  GPIO.add_event_detect(3,GPIO.RISING)
-  while True:
-    if GPIO.event_detected(3):
-      # if button pressed again within 2 seconds, shutdown
-      stop = time.time() + 2
-      while time.time() < stop:
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.add_event_detect(3, GPIO.RISING)
+    while True:
         if GPIO.event_detected(3):
-         GPIO.cleanup()
-         save_settings()
-         os.remove("image.jpg")
-         speech.say("Device Turning Off")
-         speech.runAndWait()
-         call("sudo shutdown -h now")
-      buttonMutex.acquire()
-      interrupt = 1
-      buttonMutex.release()
+            # if button pressed again within 2 seconds, shutdown
+            stop = time.time() + 2
+            while time.time() < stop:
+                if GPIO.event_detected(3):
+                    GPIO.cleanup()
+                    save_settings()
+                    os.remove("image.jpg")
+                    speech.say("Device Turning Off")
+                    speech.runAndWait()
+                    call("sudo shutdown -h now")
+            buttonMutex.acquire()
+            interrupt = 1
+            buttonMutex.release()
 
-def text_to_speech(result,labels):
-  # Jack's Code
-  string = constructString(labels, result)
-  speech.say(string)
-  speech.runAndWait()
+
+def text_to_speech(result, labels):
+    # Jack's Code
+    string = constructString(labels, result)
+    speech.say(string)
+    speech.runAndWait()
+
 
 def set_speaking_speed():
-  speech.setProperty('rate', speakingSpeed)
+    speech.setProperty('rate', speakingSpeed)
+
 
 def set_volume():
-  speech.setProperty('volume',volume)
+    speech.setProperty('volume', volume)
+
 
 def parse_settings():
-  if not path.exists("settings.txt"):
-    with open('settings.csv', 'w', newline = '') as csvfile:
-      writer = csv.writer(csvfile, delimeter=' ', quoting=csv.QUOTE_NONE)
-      writer.writerows('150')
-      writer.writerows('1')
-    speakingSpeed = 150
-    volume = 1 
-  else:
-    with open('settings.csv',newline = '', encoding='utf-8') as csvfile:
-      reader = csv.reader(csvfile)
-      speakingSpeed = reader[0]
-      volume = reader[1]
+    if not path.exists("settings.txt"):
+        with open('settings.csv', 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimeter=' ', quoting=csv.QUOTE_NONE)
+            writer.writerows('150')
+            writer.writerows('1')
+        speakingSpeed = 150
+        volume = 1
+    else:
+        with open('settings.csv', newline='', encoding='utf-8') as csvfile:
+            reader = csv.reader(csvfile)
+            speakingSpeed = reader[0]
+            volume = reader[1]
+
 
 def save_settings():
-  with open('settings.csv', 'w', newline = '') as csvfile:
-      writer = csv.writer(csvfile, delimeter=' ', quoting=csv.QUOTE_NONE)
-      writer.writerow(speakingSpeed)
-      writer.writerow(volume)
+    with open('settings.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimeter=' ', quoting=csv.QUOTE_NONE)
+        writer.writerow(speakingSpeed)
+        writer.writerow(volume)
+
+
 def main():
-  parse_settings()
+    parse_settings()
 
-  set_speaking_speed()
-  set_volume()
+    set_speaking_speed()
+    set_volume()
 
-  speech.say('Welcome to NavSense')
-  speech.runAndWait()
-  # Parse Arguments
-  parser = argparse.ArgumentParser()
-  parser.add_argument(
-      '--model', help='Path of the detection model.', required=True)
-  parser.add_argument(
-      '--label', help='Path of the labels file.', required = True)
-  args = parser.parse_args()
+    speech.say('Welcome to NavSense')
+    speech.runAndWait()
+    # Parse Arguments
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        '--model', help='Path of the detection model.', required=True)
+    parser.add_argument(
+        '--label', help='Path of the labels file.', required=True)
+    args = parser.parse_args()
 
-  # Initialize engine.
-  speech.say('Loading Object Recognition Models')
-  speech.runAndWait()
-  engine = DetectionEngine(args.model)
-  labels = read_label_file(args.label) if args.label else None
-  result = None
-  camera = PiCamera()
-  # Initialize Threads
-  button_t = Thread(target = hardware_interrupt)
+    # Initialize engine.
+    speech.say('Loading Object Recognition Models')
+    speech.runAndWait()
+    engine = DetectionEngine(args.model)
+    labels = read_label_file(args.label) if args.label else None
+    result = None
+    camera = PiCamera()
+    # Initialize Threads
+    button_t = Thread(target=hardware_interrupt)
 
-  # Initialize Hardware Interrupt
-  button_t.start()
+    # Initialize Hardware Interrupt
+    button_t.start()
 
-  speech.say("Device Is Ready To Use")
-  speech.runadWait()
-  while True:
-    camera.capture('image.jpg')
-    image = Image.open('image.jpg')
-
-    result = engine.DetectWithImage(image, threshold = 0.25, keep_aspect_ratio = True, relative_coord = False, top_k = 5)
-    if result:
-      # Start thread to run text to speech, when done, quit thread
-      text_to_speech(result, labels)
-
-    # Sleep and check for hardware interrupt code
-    start_ms = time.time()
+    speech.say("Device Is Ready To Use")
+    speech.runadWait()
     while True:
-      time.sleep(0.25)
-      elapsed_ms = time.time() - start_ms
-      buttonMutex.acquire()
-      if interrupt == 1:
-        interupt = 0
-        buttonMutex.release()
-        break
+        camera.capture('image.jpg')
+        image = Image.open('image.jpg')
 
-      buttonMutex.release()
-      if elapsed_ms > 5:
-        break
+        result = engine.DetectWithImage(
+            image, threshold=0.25, keep_aspect_ratio=True, relative_coord=False, top_k=5)
+        if result:
+            # Start thread to run text to speech, when done, quit thread
+            text_to_speech(result, labels)
+
+        # Sleep and check for hardware interrupt code
+        start_ms = time.time()
+        while True:
+            time.sleep(0.25)
+            elapsed_ms = time.time() - start_ms
+            buttonMutex.acquire()
+            if interrupt == 1:
+                interupt = 0
+                buttonMutex.release()
+                break
+
+            buttonMutex.release()
+            if elapsed_ms > 5:
+                break
+
 
 if __name__ == '__main__':
-  main()
+    main()
