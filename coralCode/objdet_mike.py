@@ -19,8 +19,11 @@ import RPi.GPIO as GPIO
 from edgetpu.detection.engine import DetectionEngine
 from PIL import Image
 from threading import Thread, Lock
+import collections
 import os
+import pyttsx3
 
+speech = pyttsx3.init()
 button_mutex = Lock()
 ttx_mutex = Lock()
 interrupt = 0
@@ -32,20 +35,17 @@ def multiples(dictionary, arr):
     if len(arr) != 0:
         for key, value in arr.items():
             if value == 1:
-                s = str(key)
-                st += 'one ' + dictionary[s] + ', '
+                st += 'one ' + dictionary[key] + ', '    
             if value <= 5 and value > 1:
                 st += str(value) + ' '
                 if key != 1:
-                    s = str(key)
-                    st += dictionary[s] + 's, '
+                    st += dictionary[key] + 's, '
                 else:
                     st += 'people, '
             if value > 5:
                 st += 'several '
                 if key != 1:
-                    s = str(key)
-                    st += dictionary[s] + 's, '
+                    st += dictionary[key] + 's, '
                 else:
                     st += 'people, '
     else:
@@ -63,14 +63,14 @@ def parseObjects(obs):
     center = []
     right = []
     # Parse Objects
-    for o in objs:
-        if o[1] < 100 and o[3] < 100:
-            left.append(o[0])
-        #if it creeps into center mark it as center
-        elif (o[1] >= 100 and o[1] <= 200) or (o[3] >= 100 and o[3] <= 200):
-            center.append(o[0])
-        elif o[1] > 200 and o[3] < 300:
-            right.append(o[0])
+    for o in obs:
+        box = o.bounding_box.flatten().tolist()
+        if box[0] < 360.0 and box[2] < 360.0:
+            left.append(o.label_id)
+        elif box[0] > 720.0 and box[2] < 1080.0:
+            right.append(o.label_id)
+        else:
+            center.append(o.label_id)
     return left, center, right
 
 def constructString(dictionary, objs):
@@ -110,12 +110,16 @@ def hardware_interrupt():
 
 def text_to_speech(result,labels):
   # Jack's Code
-  print("Running Text To Speech")
   string = constructString(labels, result)
-  os.system('espeak ' + string)
+  speech.say(string)
+  speech.runAndWait()
 
 def main():
-  os.system('espeak Welcome to NavSense')
+  speech.setProperty('rate', 150)
+  speech.setProperty('volume', 1)
+
+  speech.say('Welcome to NavSense')
+  speech.runAndWait()
   # Parse Arguments
   parser = argparse.ArgumentParser()
   parser.add_argument(
@@ -125,7 +129,8 @@ def main():
   args = parser.parse_args()
 
   # Initialize engine.
-  os.system('espeak Loading Object Recognition Models')
+  speech.say('Loading Object Recognition Models')
+  speech.runAndWait()
   engine = DetectionEngine(args.model)
   labels = ReadLabelFile(args.label) if args.label else None
   result = None
@@ -148,7 +153,6 @@ def main():
     # Sleep and check for hardware interrupt code
     start_ms = time.time()
     while True:
-      print("loop")
       time.sleep(0.25)
       elapsed_ms = time.time() - start_ms
       button_mutex.acquire()
