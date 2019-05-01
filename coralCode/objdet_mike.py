@@ -14,6 +14,7 @@ import platform
 import subprocess
 import time
 import io
+import csv
 from picamera import PiCamera
 import RPi.GPIO as GPIO
 from edgetpu.detection.engine import DetectionEngine
@@ -83,7 +84,7 @@ def constructString(dictionary, objs):
     return string
 
 # Function to read labels from text files.
-def ReadLabelFile(file_path):
+def read_label_file(file_path):
   with open(file_path, 'r') as f:
     lines = f.readlines()
   ret = {}
@@ -103,6 +104,7 @@ def hardware_interrupt():
       while time.time() < stop:
         if GPIO.event_detected(3):
          GPIO.cleanup()
+         save_settings()
          speech.say("Device Turning Off")
          call("sudo shutdown -h now")
       buttonMutex.acquire()
@@ -121,7 +123,28 @@ def set_speaking_speed():
 def set_volume():
   speech.setProperty('volume',volume)
 
+def parse_settings():
+  if not path.exists("settings.txt"):
+    with open('settings.csv', 'w', newline = '') as csvfile:
+      writer = csv.writer(csvfile, delimeter=' ', quoting=csv.QUOTE_NONE)
+      writer.writerows('150')
+      writer.writerows('1')
+    speakingSpeed = 150
+    volume = 1 
+  else:
+    with open('settings.csv',newline = '', encoding='utf-8') as csvfile:
+      reader = csv.reader(csvfile)
+      speakingSpeed = reader[0]
+      volume = reader[1]
+
+def save_settings():
+  with open('settings.csv', 'w', newline = '') as csvfile:
+      writer = csv.writer(csvfile, delimeter=' ', quoting=csv.QUOTE_NONE)
+      writer.writerows(speakingSpeed)
+      writer.writerows(volume)
 def main():
+  parse_settings()
+
   set_speaking_speed()
   set_volume()
 
@@ -139,7 +162,7 @@ def main():
   speech.say('Loading Object Recognition Models')
   speech.runAndWait()
   engine = DetectionEngine(args.model)
-  labels = ReadLabelFile(args.label) if args.label else None
+  labels = read_label_file(args.label) if args.label else None
   result = None
   camera = PiCamera()
   # Initialize Threads
