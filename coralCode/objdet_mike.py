@@ -139,7 +139,7 @@ def set_volume():
 
 def parse_settings():
     exists = os.path.isfile('settings.txt')
-    if exists:
+    if not exists:
         with open('settings.csv', 'w', newline='') as csvfile:
             writer = csv.writer(csvfile, delimeter=' ', quoting=csv.QUOTE_NONE)
             writer.writerows('150')
