@@ -148,7 +148,7 @@ def parse_settings():
     if not exists:
         with open('settings.csv', 'w', newline='') as csvfile:
             writer = csv.writer(csvfile, delimiter=' ', quoting=csv.QUOTE_NONE)
-            writer.writerow(['150'])
+            writer.writerow('150')
             writer.writerow('1')
             speakingSpeed = 150
             volume = 1
@@ -164,6 +164,9 @@ def parse_settings():
 
 
 def save_settings():
+    global speakingSpeed
+    global volume
+
     with open('settings.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimeter=' ', quoting=csv.QUOTE_NONE)
         writer.writerow(speakingSpeed)
