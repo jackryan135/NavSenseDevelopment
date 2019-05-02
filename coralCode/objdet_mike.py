@@ -21,8 +21,7 @@ from edgetpu.detection.engine import DetectionEngine
 from PIL import Image
 from threading import Thread, Lock
 import collections
-import os
-from path 
+import os 
 import pyttsx3
 
 # Global Variables
