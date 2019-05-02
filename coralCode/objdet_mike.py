@@ -216,7 +216,7 @@ def main():
                 break
 
             buttonMutex.release()
-            if elapsed_ms > 5:
+            if elapsed_ms > 3:
                 break
 
 
