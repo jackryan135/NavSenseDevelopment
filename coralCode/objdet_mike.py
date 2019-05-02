@@ -22,6 +22,7 @@ from PIL import Image
 from threading import Thread, Lock
 import collections
 import os
+from path 
 import pyttsx3
 
 # Global Variables
@@ -138,7 +139,8 @@ def set_volume():
 
 
 def parse_settings():
-    if not path.exists("settings.txt"):
+    exists = os.path.isfile('settings.txt')
+    if exists:
         with open('settings.csv', 'w', newline='') as csvfile:
             writer = csv.writer(csvfile, delimeter=' ', quoting=csv.QUOTE_NONE)
             writer.writerows('150')
