@@ -137,30 +137,30 @@ def set_volume():
     speech.setProperty('volume', volume)
 
 
-#def parse_settings():
-#    if not path.exists("settings.txt"):
-#        with open('settings.csv', 'w', newline='') as csvfile:
-#            writer = csv.writer(csvfile, delimeter=' ', quoting=csv.QUOTE_NONE)
-#            writer.writerows('150')
-#            writer.writerows('1')
-#        speakingSpeed = 150
-#        volume = 1
-#    else:
-#        with open('settings.csv', newline='', encoding='utf-8') as csvfile:
-#            reader = csv.reader(csvfile)
-#            speakingSpeed = reader[0]
-#            volume = reader[1]
+def parse_settings():
+    if not path.exists("settings.txt"):
+        with open('settings.csv', 'w', newline='') as csvfile:
+            writer = csv.writer(csvfile, delimeter=' ', quoting=csv.QUOTE_NONE)
+            writer.writerows('150')
+            writer.writerows('1')
+            speakingSpeed = 150
+            volume = 1
+    else:
+        with open('settings.csv', newline='', encoding='utf-8') as csvfile:
+            reader = csv.reader(csvfile)
+            speakingSpeed = reader[0]
+            volume = reader[1]
 
 
-#def save_settings():
-#    with open('settings.csv', 'w', newline='') as csvfile:
-#        writer = csv.writer(csvfile, delimeter=' ', quoting=csv.QUOTE_NONE)
-#        writer.writerow(speakingSpeed)
-#        writer.writerow(volume)
+def save_settings():
+    with open('settings.csv', 'w', newline='') as csvfile:
+        writer = csv.writer(csvfile, delimeter=' ', quoting=csv.QUOTE_NONE)
+        writer.writerow(speakingSpeed)
+        writer.writerow(volume)
 
 
 def main():
-#    parse_settings()
+    parse_settings()
 
     set_speaking_speed()
     set_volume()
