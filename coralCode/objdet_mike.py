@@ -141,7 +141,7 @@ def parse_settings():
     exists = os.path.isfile('settings.txt')
     if not exists:
         with open('settings.csv', 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile, delimiter='', quoting=csv.QUOTE_NONE)
+            writer = csv.writer(csvfile, delimiter=' ', quoting=csv.QUOTE_NONE)
             writer.writerows('150')
             writer.writerows('1')
             speakingSpeed = 150
