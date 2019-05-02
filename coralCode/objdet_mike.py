@@ -102,6 +102,7 @@ def read_label_file(file_path):
 
 
 def hardware_interrupt():
+    global interrupt
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     GPIO.add_event_detect(3, GPIO.RISING)
@@ -130,27 +131,36 @@ def text_to_speech(result, labels):
 
 
 def set_speaking_speed():
+    global speakingSpeed
     speech.setProperty('rate', speakingSpeed)
 
 
 def set_volume():
+    global volume
     speech.setProperty('volume', volume)
 
 
 def parse_settings():
-    exists = os.path.isfile('settings.txt')
+    global speakingSpeed
+    global volume
+
+    exists = os.path.isfile('settings.csv')
     if not exists:
         with open('settings.csv', 'w', newline='') as csvfile:
             writer = csv.writer(csvfile, delimiter=' ', quoting=csv.QUOTE_NONE)
-            writer.writerows(['150'])
-            writer.writerows('1')
+            writer.writerow(['150'])
+            writer.writerow('1')
             speakingSpeed = 150
             volume = 1
     else:
         with open('settings.csv', newline='', encoding='utf-8') as csvfile:
             reader = csv.reader(csvfile)
-            speakingSpeed = reader[0]
-            volume = reader[1]
+            speakingSpeed = int(next(reader)[0])
+            volume = int(next(reader)[0])
+            print('_______________________________________')
+            print(speakingSpeed)
+            print(volume)
+            print('_______________________________________')
 
 
 def save_settings():
@@ -161,6 +171,10 @@ def save_settings():
 
 
 def main():
+    global speakingSpeed
+    global volume
+    global interrupt
+
     parse_settings()
 
     set_speaking_speed()
