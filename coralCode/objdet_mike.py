@@ -230,7 +230,6 @@ def main():
         start_ms = time.time()
         while True:
             print('loop')
-            time.sleep(0.1)
             buttonMutex.acquire()
             if interrupt == 1:
                 interrupt = 0
