@@ -157,10 +157,7 @@ def parse_settings():
         exit()
     else:
         file = open("settings.txt",'r')
-        print(file.readline(0))
-        print(file.readline(1))
-        print(file.readline(2))
-        settings = file.readline(1).split(' ',1)
+        settings = int(file.readline())
         print(settings)
         exit()
         print('_______________________________________')
