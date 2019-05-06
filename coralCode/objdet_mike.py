@@ -149,7 +149,8 @@ def parse_settings():
     exists = os.path.isfile('settings.txt')
     if not exists:
         file = open('settings.txt', 'w')
-        file.write(str(150) + '/n' + str(1))
+        file.write(str(150) + '\n')
+        file.write(str(1))
         file.close()
         speakingSpeed = 150
         volume = 1
