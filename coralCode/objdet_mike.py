@@ -146,7 +146,7 @@ def parse_settings():
     exists = os.path.isfile('settings.txt')
     if not exists:
         file = open('settings.txt', 'w')
-        file.write(str(150))
+        file.write(str(150) + '\n')
         file.write(str(1))
         file.close()
         speakingSpeed = 150
@@ -169,7 +169,7 @@ def save_settings():
     global volume
 
     file = open('settings.csv', 'w')
-    file.write(str(speakingSpeed))
+    file.write(str(speakingSpeed) + '\n')
     file.write(str(volume))
     file.close()
  
