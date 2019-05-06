@@ -154,8 +154,8 @@ def parse_settings():
     else:
         with open('settings.csv', newline='', encoding='utf-8') as csvfile:
             reader = csv.reader(csvfile)
-            speakingSpeed = int(next(reader)[0])
-            volume = int(next(reader)[0])
+            speakingSpeed = int(next(reader))
+            volume = int(next(reader))
             print('_______________________________________')
             print(speakingSpeed)
             print(volume)
