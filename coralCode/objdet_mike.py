@@ -233,6 +233,7 @@ def main():
             if interrupt == 1:
                 interupt = 0
                 buttonMutex.release()
+                print("overriding loop")
                 break
 
             buttonMutex.release()
