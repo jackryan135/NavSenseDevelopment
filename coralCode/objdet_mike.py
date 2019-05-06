@@ -104,21 +104,23 @@ def hardware_interrupt(channel):
     global interrupt
     global buttonMutex
 
+    print("button was pressed")
     # if button pressed again within 2 seconds, shutdown
     stop = time.time() + 2
-    GPIO.remove_event_detect(3)
+    GPIO.remove_event_detect(channel)
     while time.time() < stop:
-        if GPIO.input(3):
+        if GPIO.input(channel):
+            print("shutting down device")
             GPIO.cleanup()
             save_settings()
             os.remove("image.jpg")
             speech.say("Device Turning Off")
             speech.runAndWait()
-            call("sudo shutdown -h now")
+            subprocess.call("sudo shutdown -h now")
     buttonMutex.acquire()
     interrupt = 1
     buttonMutex.release()
-    GPIO.add_event_detect(3, GPIO.FALLING, callback=hardware_interrupt, bouncetime=300)
+    GPIO.add_event_detect(channel, GPIO.FALLING, callback=hardware_interrupt, bouncetime=300)
 
 
 
@@ -155,7 +157,6 @@ def parse_settings():
         file = open("settings.txt",'r')
         speakingSpeed = int(file.readline(1))
         volume = int(file.readline(2))
-        exit()
         print('_______________________________________')
         print(speakingSpeed)
         print(volume)
