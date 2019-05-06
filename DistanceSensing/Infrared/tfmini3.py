@@ -1,3 +1,8 @@
+# Red/Green to 5V
+# Black/Blue to GND
+# 
+
+
 import serial
 import time
 
