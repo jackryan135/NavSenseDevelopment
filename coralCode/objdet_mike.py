@@ -154,7 +154,6 @@ def parse_settings():
         file.close()
         speakingSpeed = 150
         volume = 1
-        exit()
     else:
         file = open("settings.txt",'r')
         speakingSpeed = int(file.readline())
@@ -164,7 +163,6 @@ def parse_settings():
         print(speakingSpeed)
         print(volume)
         print('_______________________________________')
-        exit()
 
 
 def save_settings():
