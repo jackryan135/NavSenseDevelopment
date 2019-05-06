@@ -143,16 +143,16 @@ def parse_settings():
     global speakingSpeed
     global volume
 
-    exists = os.path.isfile('settings.csv')
+    exists = os.path.isfile('settings.txt')
     if not exists:
-        file = open('settings.csv', 'w')
+        file = open('settings.txt', 'w')
         file.write(str(150))
         file.write(str(1))
         file.close()
         speakingSpeed = 150
         volume = 1
     else:
-        file = open("settings.csv",'r')
+        file = open("settings.txt",'r')
         print(file.readline(1))
         #speakingSpeed = int(file.readline(1))
         #volume = int(file.readline(2))
