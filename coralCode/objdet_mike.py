@@ -157,14 +157,14 @@ def parse_settings():
         exit()
     else:
         file = open("settings.txt",'r')
-        settings = int(file.readline())
-        print(settings)
-        exit()
+        speakingSpeed = int(file.readline())
+        volume = int(file.readline())
+        file.close()
         print('_______________________________________')
         print(speakingSpeed)
         print(volume)
         print('_______________________________________')
-        file.close()
+        exit()
 
 
 def save_settings():
