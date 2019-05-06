@@ -14,7 +14,6 @@ import platform
 import subprocess
 import time
 import io
-import csv
 from picamera import PiCamera
 import RPi.GPIO as GPIO
 from edgetpu.detection.engine import DetectionEngine
@@ -145,33 +144,32 @@ def parse_settings():
 
     exists = os.path.isfile('settings.csv')
     if not exists:
-        with open('settings.csv', 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile, delimiter=' ', quoting=csv.QUOTE_NONE)
-            writer.writerow('150')
-            writer.writerow('1')
-            speakingSpeed = 150
-            volume = 1
+        file = open('settings.csv', 'w')
+        file.write('150')
+        file.write('1')
+        file.close()
+        speakingSpeed = 150
+        volume = 1
     else:
-        with open('settings.csv', newline='', encoding='utf-8') as csvfile:
-            reader = csv.reader(csvfile)
-            print(next(reader))
-            #speakingSpeed = int(next(reader))
-            #volume = int(next(reader))
-            print('_______________________________________')
-            print(speakingSpeed)
-            print(volume)
-            print('_______________________________________')
+        file = open("settings.csv",'r')
+        speakingSpeed = int(file.readline(1))
+        volume = int(file.readline(2))
+        print('_______________________________________')
+        print(speakingSpeed)
+        print(volume)
+        print('_______________________________________')
+        file.close()
 
 
 def save_settings():
     global speakingSpeed
     global volume
 
-    with open('settings.csv', 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile, delimeter=' ', quoting=csv.QUOTE_NONE)
-        writer.writerow(speakingSpeed)
-        writer.writerow(volume)
-
+    file = open('settings.csv', 'w')
+    file.write(str(speakingSpeed))
+    file.write(str(volume))
+    file.close()
+ 
 
 def main():
     global speakingSpeed
