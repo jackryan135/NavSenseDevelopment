@@ -170,7 +170,8 @@ def save_settings():
     global volume
 
     file = open('settings.txt', 'w')
-    file.write(str(speakingSpeed) + ' ' + volume)
+    file.write(str(speakingSpeed) + '\n')
+    file.write(str(volume))
     file.close()
  
 
