@@ -156,6 +156,7 @@ def parse_settings():
         exit()
     else:
         file = open("settings.txt",'r')
+        print(file.readline(1))
         settings = file.readline(1).split(' ',1)
         print(settings)
         exit()
