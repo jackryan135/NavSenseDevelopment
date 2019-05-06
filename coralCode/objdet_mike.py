@@ -108,6 +108,7 @@ def hardware_interrupt(channel):
     # if button pressed again within 2 seconds, shutdown
     stop = time.time() + 2
     GPIO.remove_event_detect(channel)
+    sleep(0.5)
     while time.time() < stop:
         if GPIO.input(channel):
             print("shutting down device")
