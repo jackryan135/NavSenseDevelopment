@@ -105,7 +105,7 @@ def hardware_interrupt():
     global interrupt
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.add_event_detect(3, GPIO.RISING)
+    GPIO.add_event_detect(3, GPIO.FALLING)
     while True:
         if GPIO.event_detected(3):
             # if button pressed again within 2 seconds, shutdown
