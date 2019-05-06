@@ -111,7 +111,7 @@ def hardware_interrupt(channel):
     time.sleep(1)
     stop = time.time() + 2
     while time.time() < stop:
-        if GPIO.input(channel):
+        if not GPIO.input(channel):
             print("shutting down device")
             GPIO.cleanup()
             save_settings()
