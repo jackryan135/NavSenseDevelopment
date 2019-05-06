@@ -230,16 +230,16 @@ def main():
         start_ms = time.time()
         while True:
             print('loop')
-            time.sleep(0.25)
-            elapsed_ms = time.time() - start_ms
+            time.sleep(0.1)
             buttonMutex.acquire()
             if interrupt == 1:
                 interrupt = 0
                 buttonMutex.release()
                 print("overriding loop")
                 break
-
             buttonMutex.release()
+            elapsed_ms = time.time() - start_ms
+
             if elapsed_ms > 5:
                 break
 
