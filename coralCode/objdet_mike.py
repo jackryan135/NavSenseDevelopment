@@ -101,26 +101,25 @@ def read_label_file(file_path):
     return ret
 
 
-def hardware_interrupt():
+def hardware_interrupt(channel):
     global interrupt
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.add_event_detect(3, GPIO.FALLING)
-    while True:
-        if GPIO.event_detected(3):
-            # if button pressed again within 2 seconds, shutdown
-            stop = time.time() + 2
-            while time.time() < stop:
-                if GPIO.event_detected(3):
-                    GPIO.cleanup()
-                    save_settings()
-                    os.remove("image.jpg")
-                    speech.say("Device Turning Off")
-                    speech.runAndWait()
-                    call("sudo shutdown -h now")
-            buttonMutex.acquire()
-            interrupt = 1
-            buttonMutex.release()
+
+    # if button pressed again within 2 seconds, shutdown
+    stop = time.time() + 2
+    GPIO.remove_event_detect(3)
+    while time.time() < stop:
+        if GPIO.input(3):
+            GPIO.cleanup()
+            save_settings()
+            os.remove("image.jpg")
+            speech.say("Device Turning Off")
+            speech.runAndWait()
+            call("sudo shutdown -h now")
+    buttonMutex.acquire()
+    interrupt = 1
+    buttonMutex.release()
+    GPIO.add_event_detect(3, GPIO.FALLING, callback=hardware_interrupt, bouncetime=300)
+
 
 
 def text_to_speech(result, labels):
@@ -201,11 +200,11 @@ def main():
     result = None
     camera = PiCamera()
     camera.rotation = 180    
-    # Initialize Threads
-    button_t = Thread(target=hardware_interrupt)
-
-    # Initialize Hardware Interrupt
-    button_t.start()
+    # Initialize GPIO
+    GPIO.setwarnings(False)
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.add_event_detect(3, GPIO.FALLING,callback=hardware_interrupt,bouncetime = 300)
 
     speech.say("Device Is Ready To Use")
     speech.runAndWait()
@@ -233,7 +232,7 @@ def main():
                 break
 
             buttonMutex.release()
-            if elapsed_ms > 3:
+            if elapsed_ms > 5:
                 break
 
 
