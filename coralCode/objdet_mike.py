@@ -122,6 +122,7 @@ def hardware_interrupt(channel):
     interrupt = 1
     buttonMutex.release()
     GPIO.add_event_detect(channel, GPIO.FALLING, callback=hardware_interrupt, bouncetime=300)
+    print("end of interrupt")
 
 
 
