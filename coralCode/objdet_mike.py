@@ -117,7 +117,7 @@ def hardware_interrupt(channel):
             #os.remove("image.jpg")
             speech.say("Device Turning Off")
             speech.runAndWait()
-            subprocess.call("sudo shutdown -h now")
+            os.system("sudo shutdown -h now")
     buttonMutex.acquire()
     interrupt = 1
     buttonMutex.release()
