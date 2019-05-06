@@ -103,11 +103,12 @@ def read_label_file(file_path):
 def hardware_interrupt(channel):
     global interrupt
     global buttonMutex
+    
+    GPIO.remove_event_detect(channel)
 
     print("button was pressed")
     # if button pressed again within 2 seconds, shutdown
     stop = time.time() + 2
-    GPIO.remove_event_detect(channel)
     time.sleep(0.5)
     while time.time() < stop:
         if GPIO.input(channel):
@@ -208,10 +209,12 @@ def main():
     GPIO.setwarnings(False)
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.add_event_detect(3, GPIO.FALLING,callback=hardware_interrupt,bouncetime = 300)
 
     speech.say("Device Is Ready To Use")
     speech.runAndWait()
+    
+    GPIO.add_event_detect(3, GPIO.FALLING,callback=hardware_interrupt,bouncetime = 300)
+
     while True:
         camera.capture('image.jpg')
         image = Image.open('image.jpg')
