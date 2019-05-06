@@ -234,7 +234,7 @@ def main():
             elapsed_ms = time.time() - start_ms
             buttonMutex.acquire()
             if interrupt == 1:
-                interupt = 0
+                interrupt = 0
                 buttonMutex.release()
                 print("overriding loop")
                 break
