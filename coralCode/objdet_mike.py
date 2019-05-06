@@ -114,7 +114,7 @@ def hardware_interrupt(channel):
             print("shutting down device")
             GPIO.cleanup()
             save_settings()
-            os.remove("image.jpg")
+            #os.remove("image.jpg")
             speech.say("Device Turning Off")
             speech.runAndWait()
             subprocess.call("sudo shutdown -h now")
