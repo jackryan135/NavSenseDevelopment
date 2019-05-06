@@ -102,6 +102,7 @@ def read_label_file(file_path):
 
 def hardware_interrupt(channel):
     global interrupt
+    global buttonMutex
 
     # if button pressed again within 2 seconds, shutdown
     stop = time.time() + 2
