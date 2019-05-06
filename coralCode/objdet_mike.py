@@ -153,9 +153,8 @@ def parse_settings():
         volume = 1
     else:
         file = open("settings.txt",'r')
-        print(file.readline(1))
-        #speakingSpeed = int(file.readline(1))
-        #volume = int(file.readline(2))
+        speakingSpeed = int(file.readline(1))
+        volume = int(file.readline(2))
         exit()
         print('_______________________________________')
         print(speakingSpeed)
@@ -168,7 +167,7 @@ def save_settings():
     global speakingSpeed
     global volume
 
-    file = open('settings.csv', 'w')
+    file = open('settings.txt', 'w')
     file.write(str(speakingSpeed) + '\n')
     file.write(str(volume))
     file.close()
