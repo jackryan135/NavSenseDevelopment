@@ -21,7 +21,7 @@ from edgetpu.detection.engine import DetectionEngine
 from PIL import Image
 from threading import Thread, Lock
 import collections
-import os
+import os 
 import pyttsx3
 
 # Global Variables
@@ -69,9 +69,10 @@ def parse_objects(obs):
     # Parse Objects
     for o in obs:
         box = o.bounding_box.flatten().tolist()
-        if box[0] < 360.0 and box[2] < 360.0:
+        print(box)
+        if box[0] < 640.0 and box[2] < 640.0:
             left.append(o.label_id)
-        elif box[0] > 720.0 and box[2] < 1080.0:
+        elif box[0] > 1280.0 and box[2] < 1920.0:
             right.append(o.label_id)
         else:
             center.append(o.label_id)
@@ -101,9 +102,10 @@ def read_label_file(file_path):
 
 
 def hardware_interrupt():
+    global interrupt
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.add_event_detect(3, GPIO.RISING)
+    GPIO.add_event_detect(3, GPIO.FALLING)
     while True:
         if GPIO.event_detected(3):
             # if button pressed again within 2 seconds, shutdown
@@ -129,29 +131,42 @@ def text_to_speech(result, labels):
 
 
 def set_speaking_speed():
+    global speakingSpeed
     speech.setProperty('rate', speakingSpeed)
 
 
 def set_volume():
+    global volume
     speech.setProperty('volume', volume)
 
 
 def parse_settings():
-    if not path.exists("settings.txt"):
+    global speakingSpeed
+    global volume
+
+    exists = os.path.isfile('settings.csv')
+    if not exists:
         with open('settings.csv', 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile, delimeter=' ', quoting=csv.QUOTE_NONE)
-            writer.writerows('150')
-            writer.writerows('1')
-        speakingSpeed = 150
-        volume = 1
+            writer = csv.writer(csvfile, delimiter=' ', quoting=csv.QUOTE_NONE)
+            writer.writerow('150')
+            writer.writerow('1')
+            speakingSpeed = 150
+            volume = 1
     else:
         with open('settings.csv', newline='', encoding='utf-8') as csvfile:
             reader = csv.reader(csvfile)
-            speakingSpeed = reader[0]
-            volume = reader[1]
+            speakingSpeed = int(next(reader)[0])
+            volume = int(next(reader)[0])
+            print('_______________________________________')
+            print(speakingSpeed)
+            print(volume)
+            print('_______________________________________')
 
 
 def save_settings():
+    global speakingSpeed
+    global volume
+
     with open('settings.csv', 'w', newline='') as csvfile:
         writer = csv.writer(csvfile, delimeter=' ', quoting=csv.QUOTE_NONE)
         writer.writerow(speakingSpeed)
@@ -159,6 +174,10 @@ def save_settings():
 
 
 def main():
+    global speakingSpeed
+    global volume
+    global interrupt
+
     parse_settings()
 
     set_speaking_speed()
@@ -181,6 +200,7 @@ def main():
     labels = read_label_file(args.label) if args.label else None
     result = None
     camera = PiCamera()
+    camera.rotation = 180    
     # Initialize Threads
     button_t = Thread(target=hardware_interrupt)
 
@@ -188,13 +208,14 @@ def main():
     button_t.start()
 
     speech.say("Device Is Ready To Use")
-    speech.runadWait()
+    speech.runAndWait()
     while True:
         camera.capture('image.jpg')
         image = Image.open('image.jpg')
+        image.show()
 
         result = engine.DetectWithImage(
-            image, threshold=0.25, keep_aspect_ratio=True, relative_coord=False, top_k=5)
+            image, threshold=0.25, keep_aspect_ratio=True, relative_coord=False, top_k=10)
         if result:
             # Start thread to run text to speech, when done, quit thread
             text_to_speech(result, labels)
@@ -202,6 +223,7 @@ def main():
         # Sleep and check for hardware interrupt code
         start_ms = time.time()
         while True:
+            print('loop')
             time.sleep(0.25)
             elapsed_ms = time.time() - start_ms
             buttonMutex.acquire()
@@ -211,7 +233,7 @@ def main():
                 break
 
             buttonMutex.release()
-            if elapsed_ms > 5:
+            if elapsed_ms > 3:
                 break
 
 
