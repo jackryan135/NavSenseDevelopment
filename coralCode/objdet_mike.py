@@ -115,7 +115,8 @@ def hardware_interrupt(channel):
             print("shutting down device")
             GPIO.cleanup()
             save_settings()
-            #os.remove("image.jpg")
+            if os.path.exists('image.jpg'):
+                os.remove("image.jpg")
             speech.say("Device Turning Off")
             speech.runAndWait()
             os.system("sudo shutdown -h now")
@@ -148,7 +149,7 @@ def parse_settings():
     global speakingSpeed
     global volume
 
-    exists = os.path.isfile('settings.txt')
+    exists = os.path.exists('settings.txt')
     if not exists:
         file = open('settings.txt', 'w')
         file.write(str(150) + '\n')
