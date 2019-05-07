@@ -29,6 +29,8 @@ from threading import Thread, Lock
 import collections
 import os 
 import pyttsx3
+import tfmini3
+import serial
 
 # Global Variables
 speech = pyttsx3.init()
@@ -37,6 +39,7 @@ interrupt = 0
 speakingSpeed = 150
 volume = 1
 waitTime = 5
+ser = serial.Serial("/dev/ttyAMA0", 115200)
 
 # Function to read labels from text files.
 def read_label_file(file_path):
@@ -55,10 +58,24 @@ def text_to_speech(result, labels):
     speech.runAndWait()
 
 def constructString(dictionary, objs):
+    global ser
+
+    dist_str = ""
+    distance = tfmini3.getTFminiData(ser)
+
+    if distance == None:
+        dist_str = ". "
+
+    if distance > 100:
+        dist_str += " in approximately " + str(distance/100) + " meters. "
+    else:
+        dist_str += " in approximately " + str(distance) + " centimeters. "
+
     string = 'There is '
     left, center, right = parse_objects(objs)
     lStr = count_items(dictionary, left) + 'to your left. '
-    cStr = count_items(dictionary, center) + 'straight ahead. '
+    #cStr = count_items(dictionary, center) + 'straight ahead. 
+    cStr = count_items(dictionary, center) + 'straight ahead' + dist_str
     rStr = count_items(dictionary, right) + 'to your right.'
     string += lStr + cStr + 'And ' + rStr
     return string
@@ -111,6 +128,7 @@ def multiples(dictionary, arr):
 def hardware_interrupt(channel):
     global interrupt
     global buttonMutex
+    global ser
     
     GPIO.remove_event_detect(channel)
 
@@ -120,6 +138,7 @@ def hardware_interrupt(channel):
     stop = time.time() + 0.5
     while time.time() < stop:
         if not GPIO.input(channel):
+            ser.close()
             print("shutting down device")
             GPIO.cleanup()
             save_settings()
@@ -254,4 +273,12 @@ def main():
 
 
 if __name__ == '__main__':
+    try:
+        if ser.is_open == False:
+            ser.open()
+
+    except KeyboardInterrupt:
+        if ser != None:
+            ser.close()
+
     main()
