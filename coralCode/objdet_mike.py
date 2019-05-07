@@ -1,15 +1,22 @@
 """NAVSENSE Object Detection Program
 
+Created by:
+Jack Ryan, Daniel Okazaki, Michael Dallow
+
+Advisor:
+Professor Behnam Dezfouli
+
+In association with:
+Andalo
+Santa Clara University 
+Frugal Innovation Hub
+
 For use with the Coral Accelerator and the Raspberry Pi 3B+
 
-For Raspberry Pi, you need to install 'feh' as image viewer:
-sudo apt-get install feh
-
 Example:
-	python3 obj_detection.py --model models/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite --label models/coco_labels.txt
+	python3 obj_detection.py
 """
 
-import argparse
 import platform
 import subprocess
 import time
@@ -29,7 +36,54 @@ buttonMutex = Lock()
 interrupt = 0
 speakingSpeed = 150
 volume = 1
+waitTime = 5
 
+# Function to read labels from text files.
+def read_label_file(file_path):
+    with open(file_path, 'r') as f:
+        lines = f.readlines()
+    ret = {}
+    for line in lines:
+        pair = line.strip().split(maxsplit=1)
+        ret[int(pair[0])] = pair[1].strip()
+    return ret
+
+# Text to speech functions
+def text_to_speech(result, labels):
+    string = constructString(labels, result)
+    speech.say(string)
+    speech.runAndWait()
+
+def constructString(dictionary, objs):
+    string = 'There is '
+    left, center, right = parse_objects(objs)
+    lStr = count_items(dictionary, left) + 'to your left. '
+    cStr = count_items(dictionary, center) + 'straight ahead. '
+    rStr = count_items(dictionary, right) + 'to your right.'
+    string += lStr + cStr + 'And ' + rStr
+    return string
+
+def parse_objects(obs):
+    left = []
+    center = []
+    right = []
+    # Parse Objects
+    for o in obs:
+        box = o.bounding_box.flatten().tolist()
+        print(box)
+        if box[0] < 640.0 and box[2] < 640.0:
+            left.append(o.label_id)
+        elif box[0] > 1280.0 and box[2] < 1920.0:
+            right.append(o.label_id)
+        else:
+            center.append(o.label_id)
+    return left, center, right
+
+def count_items(dictionary, arr):
+    counter = collections.Counter(arr)
+    c = dict(counter)
+    str = multiples(dictionary, c)
+    return str
 
 def multiples(dictionary, arr):
     st = ''
@@ -53,53 +107,7 @@ def multiples(dictionary, arr):
         st = 'Nothing '
     return st
 
-
-def count_items(dictionary, arr):
-    counter = collections.Counter(arr)
-    c = dict(counter)
-    str = multiples(dictionary, c)
-    return str
-
-
-def parse_objects(obs):
-    left = []
-    center = []
-    right = []
-    # Parse Objects
-    for o in obs:
-        box = o.bounding_box.flatten().tolist()
-        print(box)
-        if box[0] < 640.0 and box[2] < 640.0:
-            left.append(o.label_id)
-        elif box[0] > 1280.0 and box[2] < 1920.0:
-            right.append(o.label_id)
-        else:
-            center.append(o.label_id)
-    return left, center, right
-
-
-def constructString(dictionary, objs):
-    string = 'There is '
-    left, center, right = parse_objects(objs)
-    lStr = count_items(dictionary, left) + 'to your left. '
-    cStr = count_items(dictionary, center) + 'straight ahead. '
-    rStr = count_items(dictionary, right) + 'to your right.'
-    string += lStr + cStr + 'And ' + rStr
-    return string
-
-# Function to read labels from text files.
-
-
-def read_label_file(file_path):
-    with open(file_path, 'r') as f:
-        lines = f.readlines()
-    ret = {}
-    for line in lines:
-        pair = line.strip().split(maxsplit=1)
-        ret[int(pair[0])] = pair[1].strip()
-    return ret
-
-
+# Button interrupt function
 def hardware_interrupt(channel):
     global interrupt
     global buttonMutex
@@ -107,7 +115,7 @@ def hardware_interrupt(channel):
     GPIO.remove_event_detect(channel)
 
     print("button was pressed")
-    # if button pressed again within 2 seconds, shutdown
+    # if button pressed again within 0.5 seconds, shutdown
     time.sleep(1)
     stop = time.time() + 0.5
     while time.time() < stop:
@@ -115,7 +123,8 @@ def hardware_interrupt(channel):
             print("shutting down device")
             GPIO.cleanup()
             save_settings()
-            #os.remove("image.jpg")
+            if os.path.exists('image.jpg'):
+                os.remove("image.jpg")
             speech.say("Device Turning Off")
             speech.runAndWait()
             os.system("sudo shutdown -h now")
@@ -125,15 +134,7 @@ def hardware_interrupt(channel):
     GPIO.add_event_detect(channel, GPIO.FALLING, callback=hardware_interrupt, bouncetime=300)
     print("end of interrupt")
 
-
-
-def text_to_speech(result, labels):
-    # Jack's Code
-    string = constructString(labels, result)
-    speech.say(string)
-    speech.runAndWait()
-
-
+# Helper functions
 def set_speaking_speed():
     global speakingSpeed
     speech.setProperty('rate', speakingSpeed)
@@ -144,11 +145,12 @@ def set_volume():
     speech.setProperty('volume', volume)
 
 
+# Read device settings from file
 def parse_settings():
     global speakingSpeed
     global volume
 
-    exists = os.path.isfile('settings.txt')
+    exists = os.path.exists('settings.txt')
     if not exists:
         file = open('settings.txt', 'w')
         file.write(str(150) + '\n')
@@ -181,30 +183,33 @@ def main():
     global speakingSpeed
     global volume
     global interrupt
+    global waitTime
 
+	# Models and label path directories
+    model = 'models/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite'
+    label = 'models/coco_labels.txt'
+
+    # Retrieve speaking speed and volume settings from file
     parse_settings()
-
+    
+    # set speaking speed and volume
     set_speaking_speed()
     set_volume()
 
     speech.say('Welcome to NavSense')
     speech.runAndWait()
-    # Parse Arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--model', help='Path of the detection model.', required=True)
-    parser.add_argument(
-        '--label', help='Path of the labels file.', required=True)
-    args = parser.parse_args()
 
     # Initialize engine.
     speech.say('Loading Object Recognition Models')
     speech.runAndWait()
-    engine = DetectionEngine(args.model)
-    labels = read_label_file(args.label) if args.label else None
+    engine = DetectionEngine(model)
+    labels = read_label_file(label)
     result = None
+
+    # Initialize Camera
     camera = PiCamera()
     camera.rotation = 180    
+
     # Initialize GPIO
     GPIO.setwarnings(False)
     GPIO.setmode(GPIO.BOARD)
@@ -212,20 +217,23 @@ def main():
 
     speech.say("Device Is Ready To Use")
     speech.runAndWait()
-    
+
+    # Start of button interrupt 
     GPIO.add_event_detect(3, GPIO.FALLING,callback=hardware_interrupt,bouncetime = 300)
 
     while True:
         camera.capture('image.jpg')
         image = Image.open('image.jpg')
-        image.show()
+        #image.show()
 
         result = engine.DetectWithImage(
             image, threshold=0.25, keep_aspect_ratio=True, relative_coord=False, top_k=10)
         if result:
             # Start thread to run text to speech, when done, quit thread
             text_to_speech(result, labels)
-
+        else:
+            speech.say("No object detected")
+            speech.runAndWait()
         # Sleep and check for hardware interrupt code
         start_ms = time.time()
         while True:
@@ -240,7 +248,8 @@ def main():
             buttonMutex.release()
             elapsed_ms = time.time() - start_ms
 
-            if elapsed_ms > 5:
+			# Wait time in between inferences
+            if elapsed_ms > waitTime:
                 break
 
 
