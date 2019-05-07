@@ -30,6 +30,8 @@ speakingSpeed = 150
 volume = 1
 
 
+# Text to speech functions
+
 def multiples(dictionary, arr):
     st = ''
     if len(arr) != 0:
@@ -86,6 +88,12 @@ def constructString(dictionary, objs):
     string += lStr + cStr + 'And ' + rStr
     return string
 
+def text_to_speech(result, labels):
+    # Jack's Code
+    string = constructString(labels, result)
+    speech.say(string)
+    speech.runAndWait()
+
 # Function to read labels from text files.
 def read_label_file(file_path):
     with open(file_path, 'r') as f:
@@ -97,6 +105,7 @@ def read_label_file(file_path):
     return ret
 
 
+# Button interrupt function
 def hardware_interrupt(channel):
     global interrupt
     global buttonMutex
@@ -123,15 +132,7 @@ def hardware_interrupt(channel):
     GPIO.add_event_detect(channel, GPIO.FALLING, callback=hardware_interrupt, bouncetime=300)
     print("end of interrupt")
 
-
-
-def text_to_speech(result, labels):
-    # Jack's Code
-    string = constructString(labels, result)
-    speech.say(string)
-    speech.runAndWait()
-
-
+# Helper functions
 def set_speaking_speed():
     global speakingSpeed
     speech.setProperty('rate', speakingSpeed)
@@ -142,6 +143,7 @@ def set_volume():
     speech.setProperty('volume', volume)
 
 
+# Read device settings from file
 def parse_settings():
     global speakingSpeed
     global volume
