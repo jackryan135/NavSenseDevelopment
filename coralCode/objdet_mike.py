@@ -226,7 +226,9 @@ def main():
         if result:
             # Start thread to run text to speech, when done, quit thread
             text_to_speech(result, labels)
-
+        else:
+            speech.say("No object detected")
+            speech.runAndWait()
         # Sleep and check for hardware interrupt code
         start_ms = time.time()
         while True:
