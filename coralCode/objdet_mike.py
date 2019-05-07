@@ -6,10 +6,9 @@ For Raspberry Pi, you need to install 'feh' as image viewer:
 sudo apt-get install feh
 
 Example:
-	python3 obj_detection.py --model models/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite --label models/coco_labels.txt
+	python3 obj_detection.py
 """
 
-import argparse
 import platform
 import subprocess
 import time
@@ -88,8 +87,6 @@ def constructString(dictionary, objs):
     return string
 
 # Function to read labels from text files.
-
-
 def read_label_file(file_path):
     with open(file_path, 'r') as f:
         lines = f.readlines()
@@ -107,7 +104,7 @@ def hardware_interrupt(channel):
     GPIO.remove_event_detect(channel)
 
     print("button was pressed")
-    # if button pressed again within 2 seconds, shutdown
+    # if button pressed again within 0.5 seconds, shutdown
     time.sleep(1)
     stop = time.time() + 0.5
     while time.time() < stop:
@@ -182,30 +179,31 @@ def main():
     global speakingSpeed
     global volume
     global interrupt
+	# Models and label path directories
+    model = 'models/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite'
+    label = 'models/coco_labels.txt'
 
+    # Retrieve speaking speed and volume settings from file
     parse_settings()
-
+    
+    # set speaking speed and volume
     set_speaking_speed()
     set_volume()
 
     speech.say('Welcome to NavSense')
     speech.runAndWait()
-    # Parse Arguments
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        '--model', help='Path of the detection model.', required=True)
-    parser.add_argument(
-        '--label', help='Path of the labels file.', required=True)
-    args = parser.parse_args()
 
     # Initialize engine.
     speech.say('Loading Object Recognition Models')
     speech.runAndWait()
-    engine = DetectionEngine(args.model)
-    labels = read_label_file(args.label) if args.label else None
+    engine = DetectionEngine(model)
+    labels = read_label_file(label)
     result = None
+
+    # Initialize Camera
     camera = PiCamera()
     camera.rotation = 180    
+
     # Initialize GPIO
     GPIO.setwarnings(False)
     GPIO.setmode(GPIO.BOARD)
@@ -219,7 +217,7 @@ def main():
     while True:
         camera.capture('image.jpg')
         image = Image.open('image.jpg')
-        image.show()
+        #image.show()
 
         result = engine.DetectWithImage(
             image, threshold=0.25, keep_aspect_ratio=True, relative_coord=False, top_k=10)
