@@ -1,9 +1,17 @@
 """NAVSENSE Object Detection Program
 
-For use with the Coral Accelerator and the Raspberry Pi 3B+
+Created by:
+Jack Ryan, Daniel Okazaki, Michael Dallow
 
-For Raspberry Pi, you need to install 'feh' as image viewer:
-sudo apt-get install feh
+Advisor:
+Professor Behnam Dezfouli
+
+In association with:
+Andalo
+Santa Clara University 
+Frugal Innovation Hub
+
+For use with the Coral Accelerator and the Raspberry Pi 3B+
 
 Example:
 	python3 obj_detection.py
@@ -28,9 +36,54 @@ buttonMutex = Lock()
 interrupt = 0
 speakingSpeed = 150
 volume = 1
+waitTime = 5
 
+# Function to read labels from text files.
+def read_label_file(file_path):
+    with open(file_path, 'r') as f:
+        lines = f.readlines()
+    ret = {}
+    for line in lines:
+        pair = line.strip().split(maxsplit=1)
+        ret[int(pair[0])] = pair[1].strip()
+    return ret
 
 # Text to speech functions
+def text_to_speech(result, labels):
+    string = constructString(labels, result)
+    speech.say(string)
+    speech.runAndWait()
+
+def constructString(dictionary, objs):
+    string = 'There is '
+    left, center, right = parse_objects(objs)
+    lStr = count_items(dictionary, left) + 'to your left. '
+    cStr = count_items(dictionary, center) + 'straight ahead. '
+    rStr = count_items(dictionary, right) + 'to your right.'
+    string += lStr + cStr + 'And ' + rStr
+    return string
+
+def parse_objects(obs):
+    left = []
+    center = []
+    right = []
+    # Parse Objects
+    for o in obs:
+        box = o.bounding_box.flatten().tolist()
+        print(box)
+        if box[0] < 640.0 and box[2] < 640.0:
+            left.append(o.label_id)
+        elif box[0] > 1280.0 and box[2] < 1920.0:
+            right.append(o.label_id)
+        else:
+            center.append(o.label_id)
+    return left, center, right
+
+def count_items(dictionary, arr):
+    counter = collections.Counter(arr)
+    c = dict(counter)
+    str = multiples(dictionary, c)
+    return str
 
 def multiples(dictionary, arr):
     st = ''
@@ -53,57 +106,6 @@ def multiples(dictionary, arr):
     else:
         st = 'Nothing '
     return st
-
-
-def count_items(dictionary, arr):
-    counter = collections.Counter(arr)
-    c = dict(counter)
-    str = multiples(dictionary, c)
-    return str
-
-
-def parse_objects(obs):
-    left = []
-    center = []
-    right = []
-    # Parse Objects
-    for o in obs:
-        box = o.bounding_box.flatten().tolist()
-        print(box)
-        if box[0] < 640.0 and box[2] < 640.0:
-            left.append(o.label_id)
-        elif box[0] > 1280.0 and box[2] < 1920.0:
-            right.append(o.label_id)
-        else:
-            center.append(o.label_id)
-    return left, center, right
-
-
-def constructString(dictionary, objs):
-    string = 'There is '
-    left, center, right = parse_objects(objs)
-    lStr = count_items(dictionary, left) + 'to your left. '
-    cStr = count_items(dictionary, center) + 'straight ahead. '
-    rStr = count_items(dictionary, right) + 'to your right.'
-    string += lStr + cStr + 'And ' + rStr
-    return string
-
-def text_to_speech(result, labels):
-    # Jack's Code
-    string = constructString(labels, result)
-    speech.say(string)
-    speech.runAndWait()
-
-# Function to read labels from text files.
-def read_label_file(file_path):
-    with open(file_path, 'r') as f:
-        lines = f.readlines()
-    ret = {}
-    for line in lines:
-        pair = line.strip().split(maxsplit=1)
-        ret[int(pair[0])] = pair[1].strip()
-    return ret
-
 
 # Button interrupt function
 def hardware_interrupt(channel):
@@ -181,6 +183,8 @@ def main():
     global speakingSpeed
     global volume
     global interrupt
+    global waitTime
+
 	# Models and label path directories
     model = 'models/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite'
     label = 'models/coco_labels.txt'
@@ -213,7 +217,8 @@ def main():
 
     speech.say("Device Is Ready To Use")
     speech.runAndWait()
-    
+
+    # Start of button interrupt 
     GPIO.add_event_detect(3, GPIO.FALLING,callback=hardware_interrupt,bouncetime = 300)
 
     while True:
@@ -243,7 +248,8 @@ def main():
             buttonMutex.release()
             elapsed_ms = time.time() - start_ms
 
-            if elapsed_ms > 5:
+			# Wait time in between inferences
+            if elapsed_ms > waitTime:
                 break
 
 
