@@ -14,7 +14,6 @@ import platform
 import subprocess
 import time
 import io
-import csv
 from picamera import PiCamera
 import RPi.GPIO as GPIO
 from edgetpu.detection.engine import DetectionEngine
@@ -101,26 +100,31 @@ def read_label_file(file_path):
     return ret
 
 
-def hardware_interrupt():
+def hardware_interrupt(channel):
     global interrupt
-    GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.add_event_detect(3, GPIO.FALLING)
-    while True:
-        if GPIO.event_detected(3):
-            # if button pressed again within 2 seconds, shutdown
-            stop = time.time() + 2
-            while time.time() < stop:
-                if GPIO.event_detected(3):
-                    GPIO.cleanup()
-                    save_settings()
-                    os.remove("image.jpg")
-                    speech.say("Device Turning Off")
-                    speech.runAndWait()
-                    call("sudo shutdown -h now")
-            buttonMutex.acquire()
-            interrupt = 1
-            buttonMutex.release()
+    global buttonMutex
+    
+    GPIO.remove_event_detect(channel)
+
+    print("button was pressed")
+    # if button pressed again within 2 seconds, shutdown
+    time.sleep(1)
+    stop = time.time() + 0.5
+    while time.time() < stop:
+        if not GPIO.input(channel):
+            print("shutting down device")
+            GPIO.cleanup()
+            save_settings()
+            #os.remove("image.jpg")
+            speech.say("Device Turning Off")
+            speech.runAndWait()
+            os.system("sudo shutdown -h now")
+    buttonMutex.acquire()
+    interrupt = 1
+    buttonMutex.release()
+    GPIO.add_event_detect(channel, GPIO.FALLING, callback=hardware_interrupt, bouncetime=300)
+    print("end of interrupt")
+
 
 
 def text_to_speech(result, labels):
@@ -144,34 +148,34 @@ def parse_settings():
     global speakingSpeed
     global volume
 
-    exists = os.path.isfile('settings.csv')
+    exists = os.path.isfile('settings.txt')
     if not exists:
-        with open('settings.csv', 'w', newline='') as csvfile:
-            writer = csv.writer(csvfile, delimiter=' ', quoting=csv.QUOTE_NONE)
-            writer.writerow('150')
-            writer.writerow('1')
-            speakingSpeed = 150
-            volume = 1
+        file = open('settings.txt', 'w')
+        file.write(str(150) + '\n')
+        file.write(str(1))
+        file.close()
+        speakingSpeed = 150
+        volume = 1
     else:
-        with open('settings.csv', newline='', encoding='utf-8') as csvfile:
-            reader = csv.reader(csvfile)
-            speakingSpeed = int(next(reader)[0])
-            volume = int(next(reader)[0])
-            print('_______________________________________')
-            print(speakingSpeed)
-            print(volume)
-            print('_______________________________________')
+        file = open("settings.txt",'r')
+        speakingSpeed = int(file.readline())
+        volume = int(file.readline())
+        file.close()
+        print('_______________________________________')
+        print(speakingSpeed)
+        print(volume)
+        print('_______________________________________')
 
 
 def save_settings():
     global speakingSpeed
     global volume
 
-    with open('settings.csv', 'w', newline='') as csvfile:
-        writer = csv.writer(csvfile, delimeter=' ', quoting=csv.QUOTE_NONE)
-        writer.writerow(speakingSpeed)
-        writer.writerow(volume)
-
+    file = open('settings.txt', 'w')
+    file.write(str(speakingSpeed) + '\n')
+    file.write(str(volume))
+    file.close()
+ 
 
 def main():
     global speakingSpeed
@@ -201,14 +205,16 @@ def main():
     result = None
     camera = PiCamera()
     camera.rotation = 180    
-    # Initialize Threads
-    button_t = Thread(target=hardware_interrupt)
-
-    # Initialize Hardware Interrupt
-    button_t.start()
+    # Initialize GPIO
+    GPIO.setwarnings(False)
+    GPIO.setmode(GPIO.BOARD)
+    GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
     speech.say("Device Is Ready To Use")
     speech.runAndWait()
+    
+    GPIO.add_event_detect(3, GPIO.FALLING,callback=hardware_interrupt,bouncetime = 300)
+
     while True:
         camera.capture('image.jpg')
         image = Image.open('image.jpg')
@@ -225,15 +231,16 @@ def main():
         while True:
             print('loop')
             time.sleep(0.25)
-            elapsed_ms = time.time() - start_ms
             buttonMutex.acquire()
             if interrupt == 1:
-                interupt = 0
+                interrupt = 0
                 buttonMutex.release()
+                print("overriding loop")
                 break
-
             buttonMutex.release()
-            if elapsed_ms > 3:
+            elapsed_ms = time.time() - start_ms
+
+            if elapsed_ms > 5:
                 break
 
 
