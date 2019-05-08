@@ -66,7 +66,7 @@ def constructString(dictionary, objs):
     if distance == None:
         dist_str = ". "
 
-    if distance > 100:
+    elif distance > 100:
         dist_str += " in approximately " + str(distance/100) + " meters. "
     else:
         dist_str += " in approximately " + str(distance) + " centimeters. "
