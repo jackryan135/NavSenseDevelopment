@@ -140,7 +140,7 @@ def hardware_interrupt(channel):
 
     print("button was pressed")
     # if button pressed again within 0.5 seconds, shutdown
-    time.sleep(1)
+    time.sleep(0.25)
     stop = time.time() + 0.5
 
     while time.time() < stop:
