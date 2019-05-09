@@ -86,7 +86,7 @@ def parse_objects(obs):
     # Parse Objects
     for o in obs:
         box = o.bounding_box.flatten().tolist()
-		print(o.label_id + ':')
+        print(str(o.label_id) + ':')
         print(box)
         if box[0] < 640.0 and box[2] < 640.0:
             left.append(o.label_id)
@@ -195,9 +195,9 @@ def parse_settings():
         volume = int(file.readline())
         file.close()
         print('_______________________________________')
-		print('Speaking Speed:')
+        print('Speaking Speed:')
         print(speakingSpeed)
-		print('Volume:')
+        print('Volume:')
         print(volume)
         print('_______________________________________')
 
@@ -217,7 +217,7 @@ def main():
     global volume
     global interrupt
     global waitTime
-	global ser
+    global ser
 
     # Models and label path directories
     model = 'models/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite'
@@ -265,21 +265,21 @@ def main():
             image, threshold=0.25, keep_aspect_ratio=True, relative_coord=False, top_k=10)
 
         if result:
-			distance = tfmini3.getTFminiData(ser)
+            distance = tfmini3.getTFminiData(ser)
 
-			if distance != None:
-				if distance < 7000:
-					speech.say('The nearest object in front of you is ')
-					dist_str = ''
+            if distance != None:
+                if distance < 7000:
+                    speech.say('The nearest object in front of you is ')
+                    dist_str = ''
 
-					if distance > 100:
-				        dist_str += "approximately " + \
-				            str(distance / 100) + " meters ahead. "
-				    else:
-				        dist_str += "approximately " + str(distance) + " centimeters ahead. "
+                    if distance > 100:
+                        dist_str += "approximately " + \
+                                str(distance / 100) + " meters ahead. "
+                    else:
+                        dist_str += "approximately " + str(distance) + " centimeters ahead. "
 
-					speech.say(dist_str)
-					speech.runAndWait()
+                    speech.say(dist_str)
+                    speech.runAndWait()
 
             # Start thread to run text to speech, when done, quit thread
             text_to_speech(result, labels)
