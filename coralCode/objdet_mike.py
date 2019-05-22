@@ -136,7 +136,7 @@ def hardware_interrupt(channel):
     global buttonMutex
     global ser
 
-    GPIO.remove_event_detect(channel)
+    #GPIO.remove_event_detect(channel)
 
     print("button was pressed")
     # if button pressed again within 0.5 seconds, shutdown
@@ -158,8 +158,8 @@ def hardware_interrupt(channel):
     buttonMutex.acquire()
     interrupt = 1
     buttonMutex.release()
-    GPIO.add_event_detect(channel, GPIO.FALLING,
-                          callback=hardware_interrupt, bouncetime=300)
+    #GPIO.add_event_detect(channel, GPIO.FALLING,
+    #                      callback=hardware_interrupt, bouncetime=300)
 
     print("end of interrupt")
 
@@ -255,6 +255,20 @@ def main():
     # Start of button interrupt
     GPIO.add_event_detect(
         3, GPIO.FALLING, callback=hardware_interrupt, bouncetime=300)
+    # Button up
+    GPIO.add_event_detect(
+        5, GPIO.FALLING, callback=button_up, bouncetime=300)
+    # Button down
+    GPIO.add_event_detect(
+        11, GPIO.FALLING, callback=button_down, bouncetime=300)
+    # Power off
+    GPIO.add_event_detect(
+        12, GPIO.FALLING, callback=power_off, bouncetime=300)
+    # Switch up: 13
+    # Switch down: 15
+    
+
+
 
     while True:
         camera.capture('image.jpg')
