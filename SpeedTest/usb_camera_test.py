@@ -12,12 +12,6 @@ for i in range(0,50):
     start = time.time()
     ret, frame = video_capture.read()
 
-#while(True):
-#    cv2.imshow('img1',frame)
-#    if cv2.waitKey(1) & 0xFF == ord('y'):
-#        cv2.imwrite('images/c1.png', frame)
-#        cv2.destroyAllWindows()
-#        break
 # Close device
     cv2.imwrite('image.png', frame)
     video_capture.release()
