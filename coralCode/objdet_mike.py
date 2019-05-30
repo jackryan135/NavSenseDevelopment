@@ -85,7 +85,7 @@ def constructString(dictionary, objs):
     if (lStr or cStr) and rStr:
         string += lStr + cStr + 'And ' + rStr
     # left and center
-    elif lStr and cSter:
+    elif lStr and cStr:
         string += lStr + 'And ' + cStr
     # right and left
     elif rStr and lStr:
@@ -329,12 +329,12 @@ def main():
     # Initialize GPIO
     GPIO.setwarnings(False)
     GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(11, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(12, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(13, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(15, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(11, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(12, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(13, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(15, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
     speech.say("Device Is Ready To Use")
     speech.runAndWait()
