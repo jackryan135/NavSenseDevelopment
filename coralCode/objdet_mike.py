@@ -63,10 +63,10 @@ def read_label_file(file_path):
 def text_to_speech(result, labels):
     string = constructString(labels, result)
     try:
-		speech.stop()
-	finally:
-    	speech.say(string)
-    	speech.runAndWait()
+        speech.stop()
+    finally:
+        speech.say(string)
+        speech.runAndWait()
 
 
 def constructString(dictionary, objs):
@@ -396,8 +396,8 @@ def main():
                 text_to_speech(result, labels)
             else:
                 try:
-					speech.stop()
-				finally:
+                    speech.stop()
+                finally:
                 	speech.say("No object detected")
                 	speech.runAndWait()
 
