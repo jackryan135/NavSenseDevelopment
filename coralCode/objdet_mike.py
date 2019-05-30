@@ -62,8 +62,11 @@ def read_label_file(file_path):
 # Text to speech functions
 def text_to_speech(result, labels):
     string = constructString(labels, result)
-    speech.say(string)
-    speech.runAndWait()
+	try:
+		speech.stop()
+	finally:
+    	speech.say(string)
+    	speech.runAndWait()
 
 
 def constructString(dictionary, objs):
@@ -178,6 +181,7 @@ def button_up(channel):
     print("UP")
     if GPIO.input(13):
         while not GPIO.input(5):
+			print("Volume up")
             volume = volume + 2
             set_volume()
             try:
@@ -187,6 +191,7 @@ def button_up(channel):
                 time.sleep(0.25)
     if GPIO.input(15):
         while not GPIO.input(5):
+			print("speeking speed up")
             speakingSpeed = speakingSpeed + 2
             set_speaking_speed()
             try:
@@ -209,6 +214,7 @@ def button_down(channel):
     print("DOWN")
     if not GPIO.input(13):
         if not GPIO.input(11):
+			print("volume down")
             volume = volume - 2
             set_volume()
             try:
@@ -218,6 +224,7 @@ def button_down(channel):
                 time.sleep(0.25)
     if not GPIO.input(15):
         if not GPIO.input(11):
+			print("speeking speed down")
             speakingSpeed = speakingSpeed - 2
             set_speaking_speed()
             try:
@@ -388,8 +395,11 @@ def main():
                 # Start thread to run text to speech, when done, quit thread
                 text_to_speech(result, labels)
             else:
-                speech.say("No object detected")
-                speech.runAndWait()
+                try:
+					speech.stop()
+				finally:
+                	speech.say("No object detected")
+                	speech.runAndWait()
 
             # Sleep and check for hardware interrupt code
             start_ms = time.time()
