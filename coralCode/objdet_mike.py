@@ -178,38 +178,39 @@ def button_up(channel):
     global speakingSpeed
     global volume
 
+    GPIO.remove_event_detect(channel)
+
     print("UP")
     if GPIO.input(13):
-        while not GPIO.input(5):
-            print("Volume up")
-            volume = volume + 2
-            set_volume()
-            try:
-                speech.stop()
-            finally:
-                speech.say("Increasing Volume")
-                time.sleep(0.25)
-    if GPIO.input(15):
-        while not GPIO.input(5):
-            print("speeking speed up")
-            speakingSpeed = speakingSpeed + 2
-            set_speaking_speed()
-            try:
-                speech.stop()
-            finally:
-                speech.say("Increasing Speaking Speed")
-                time.sleep(0.25)
-    else:
-        try:
+        print("Volume up")
+        volume = volume + 2
+        set_volume()
+        if speech.isBusy():
             speech.stop()
-        finally:
-            speech.say("Please flip the switch to adjust sound settings")
-            speech.runAndWait()
+        speech.say("Increasing Volume")
+        time.sleep(0.25)
+    elif GPIO.input(15):
+        print("speeking speed up")
+        speakingSpeed = speakingSpeed + 2
+        set_speaking_speed()
+        if speech.isBusy():
+            speech.stop()
+        speech.say("Increasing Speaking Speed")
+        time.sleep(0.25)
+    else:
+        if speech.isBusy():        
+            speech.stop()
+        speech.say("Please flip the switch to adjust sound settings")
+        speech.runAndWait()
+    GPIO.add_event_detect(channel, GPIO.FALLING,
+                          callback=button_up, bouncetime=300)
 
 
 def button_down(channel):
     global speakingSpeed
     global volume
+  
+    GPIO.remove_event_detect(channel)
 
     print("DOWN")
     if not GPIO.input(13):
@@ -238,9 +239,12 @@ def button_down(channel):
         finally:
             speech.say("Please flip the switch to adjust sound settings")
             speech.runAndWait()
+    GPIO.add_event_detect(channel, GPIO.FALLING,
+                          callback=button_down, bouncetime=300)
 
 
 def power_off(channel):
+    GPIO.remove_event_detect(channel)
     print("OFF")
     print("shutting down device")
     GPIO.cleanup()
