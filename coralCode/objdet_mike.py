@@ -176,7 +176,7 @@ def button_up(channel):
     global volume
 
     if not GPIO.input(13):
-        while not GPIO.input(5):
+        if not GPIO.input(5):
             volume = volume + 2
             set_volume()
             try:
@@ -185,7 +185,7 @@ def button_up(channel):
                 speech.say("Increasing Volume")
                 time.sleep(0.25)
     if not GPIO.input(15):
-        while not GPIO.input(5):
+        if not GPIO.input(5):
             speakingSpeed = speakingSpeed + 2
             set_speaking_speed()
             try:
@@ -206,7 +206,7 @@ def button_down(channel):
     global volume
 
     if not GPIO.input(13):
-        while not GPIO.input(11):
+        if not GPIO.input(11):
             volume = volume - 2
             set_volume()
             try:
@@ -215,7 +215,7 @@ def button_down(channel):
                 speech.say("Decreasing Volume")
                 time.sleep(0.25)
     if not GPIO.input(15):
-        while not GPIO.input(11):
+        if not GPIO.input(11):
             speakingSpeed = speakingSpeed - 2
             set_speaking_speed()
             try:
