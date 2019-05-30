@@ -175,6 +175,7 @@ def button_up(channel):
     global speakingSpeed
     global volume
 
+    print("UP")
     if not GPIO.input(13):
         if not GPIO.input(5):
             volume = volume + 2
@@ -205,6 +206,7 @@ def button_down(channel):
     global speakingSpeed
     global volume
 
+    print("DOWN")
     if not GPIO.input(13):
         if not GPIO.input(11):
             volume = volume - 2
@@ -232,6 +234,7 @@ def button_down(channel):
 
 
 def power_off(channel):
+    print("OFF")
     print("shutting down device")
     GPIO.cleanup()
     save_settings()
