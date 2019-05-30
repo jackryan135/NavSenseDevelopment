@@ -151,7 +151,7 @@ def multiples(dictionary, arr):
                 else:
                     st += 'people, '
     # else:
-        #st = 'Nothing '
+        # st = 'Nothing '
 
     return st
 
