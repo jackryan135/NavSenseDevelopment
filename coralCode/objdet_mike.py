@@ -181,7 +181,7 @@ def button_up(channel):
     print("UP")
     if GPIO.input(13):
         while not GPIO.input(5):
-			print("Volume up")
+            print("Volume up")
             volume = volume + 2
             set_volume()
             try:
@@ -191,7 +191,7 @@ def button_up(channel):
                 time.sleep(0.25)
     if GPIO.input(15):
         while not GPIO.input(5):
-			print("speeking speed up")
+            print("speeking speed up")
             speakingSpeed = speakingSpeed + 2
             set_speaking_speed()
             try:
@@ -214,7 +214,7 @@ def button_down(channel):
     print("DOWN")
     if not GPIO.input(13):
         if not GPIO.input(11):
-			print("volume down")
+            print("volume down")
             volume = volume - 2
             set_volume()
             try:
@@ -224,7 +224,7 @@ def button_down(channel):
                 time.sleep(0.25)
     if not GPIO.input(15):
         if not GPIO.input(11):
-			print("speeking speed down")
+            print("speeking speed down")
             speakingSpeed = speakingSpeed - 2
             set_speaking_speed()
             try:
