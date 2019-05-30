@@ -69,7 +69,10 @@ def text_to_speech(result, labels):
 def constructString(dictionary, objs):
     string = 'There is '
     left, center, right = parse_objects(objs)
-    lStr, rStr, cStr = None
+	lStr = ''
+	rStr = ''
+	cStr = ''
+	
     if left:
        lStr = count_items(dictionary, left) + 'to your left. '
     if center:
@@ -94,7 +97,7 @@ def constructString(dictionary, objs):
           string += rStr
        else:
           string += cStr
-  
+
     return string
 
 
@@ -225,7 +228,7 @@ def button_down(channel):
       finally:
          speech.say("Please flip the switch to adjust sound settings")
          speech.runAndWait()
-     
+
 def power_off(channel):
    print("shutting down device")
    GPIO.cleanup()
@@ -362,12 +365,12 @@ def main():
         finally:
            if result:
               distance = tfmini3.getTFminiData(ser)
-         
+
               if distance != None:
                  if distance < 7000:
                     speech.say('The nearest object in front of you is ')
                     dist_str = ''
-                    
+
                     if distance > 100:
                        dist_str += "approximately " + \
                           str(distance / 100) + " meters ahead. "
@@ -385,12 +388,12 @@ def main():
 
            # Sleep and check for hardware interrupt code
            start_ms = time.time()
-           
+
            while True:
               print('wait')
               time.sleep(0.25)
               buttonMutex.acquire()
-    
+
               if interrupt == 1:
                  interrupt = 0
                  buttonMutex.release()
