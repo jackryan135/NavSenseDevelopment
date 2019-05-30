@@ -62,7 +62,7 @@ def read_label_file(file_path):
 # Text to speech functions
 def text_to_speech(result, labels):
     string = constructString(labels, result)
-	try:
+    try:
 		speech.stop()
 	finally:
     	speech.say(string)
