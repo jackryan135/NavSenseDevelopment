@@ -62,39 +62,45 @@ def read_label_file(file_path):
 # Text to speech functions
 def text_to_speech(result, labels):
     string = constructString(labels, result)
-    speech.say(string)
-    speech.runAndWait()
+    try:
+        speech.stop()
+    finally:
+        speech.say(string)
+        speech.runAndWait()
 
 
 def constructString(dictionary, objs):
     string = 'There is '
     left, center, right = parse_objects(objs)
-    lStr, rStr, cStr = None
+    lStr = ''
+    rStr = ''
+    cStr = ''
+
     if left:
-       lStr = count_items(dictionary, left) + 'to your left. '
+        lStr = count_items(dictionary, left) + 'to your left. '
     if center:
-       cStr = count_items(dictionary, center) + 'straight ahead. '
+        cStr = count_items(dictionary, center) + 'straight ahead. '
     # cStr = count_items(dictionary, center) + 'straight ahead' + dist_str
     if right:
-       rStr = count_items(dictionary, right) + 'to your right.'
+        rStr = count_items(dictionary, right) + 'to your right.'
     # left and right
     # center and right
     if (lStr or cStr) and rStr:
-       string += lStr + cStr + 'And ' + rStr
+        string += lStr + cStr + 'And ' + rStr
     # left and center
-    elif lStr and cSter:
-       string += lStr + 'And ' + cStr
+    elif lStr and cStr:
+        string += lStr + 'And ' + cStr
     # right and left
     elif rStr and lStr:
-       string += rStr + 'And ' + lStr
+        string += rStr + 'And ' + lStr
     else:
-       if lStr:
-          string += lStr
-       elif rStr:
-          string += rStr
-       else:
-          string += cStr
-  
+        if lStr:
+            string += lStr
+        elif rStr:
+            string += rStr
+        else:
+            string += cStr
+
     return string
 
 
@@ -144,8 +150,8 @@ def multiples(dictionary, arr):
                     st += dictionary[key] + 's, '
                 else:
                     st += 'people, '
-    #else:
-        #st = 'Nothing '
+    # else:
+        # st = 'Nothing '
 
     return st
 
@@ -167,78 +173,91 @@ def hardware_interrupt(channel):
 
     print("end of interrupt")
 
-def button_up(channel):
-   global speakingSpeed
-   global volume
 
-   if not GPIO.input(13):
-      while not GPIO.input(5):
-         volume = volume + 2
-         set_volume()
-         try:
-           speech.stop()
-         finally:
-           speech.say("Increasing Volume")
-           time.sleep(0.25)
-   if not GPIO.input(15):
-      while not GPIO.input(5):
-         speakingSpeed = speakingSpeed + 2
-         set_speaking_speed()
-         try:
+def button_up(channel):
+    global speakingSpeed
+    global volume
+
+    GPIO.remove_event_detect(channel)
+
+    print("UP")
+    if GPIO.input(13):
+        print("Volume up")
+        volume = volume + 2
+        set_volume()
+        if speech.isBusy():
             speech.stop()
-         finally:
-            speech.say("Increasing Speaking Speed")
-            time.sleep(0.25)
-   else:
-      try:
-         speech.stop()
-      finally:
-         speech.say("Please flip the switch to adjust sound settings")
-         speech.runAndWait()
+        speech.say("Increasing Volume")
+        time.sleep(0.25)
+    elif GPIO.input(15):
+        print("speeking speed up")
+        speakingSpeed = speakingSpeed + 2
+        set_speaking_speed()
+        if speech.isBusy():
+            speech.stop()
+        speech.say("Increasing Speaking Speed")
+        time.sleep(0.25)
+    else:
+        if speech.isBusy():        
+            speech.stop()
+        speech.say("Please flip the switch to adjust sound settings")
+        speech.runAndWait()
+    GPIO.add_event_detect(channel, GPIO.FALLING,
+                          callback=button_up, bouncetime=300)
 
 
 def button_down(channel):
-   global speakingSpeed
-   global volume
+    global speakingSpeed
+    global volume
+  
+    GPIO.remove_event_detect(channel)
 
-   if not GPIO.input(13):
-      while not GPIO.input(11):
-         volume = volume - 2
-         set_volume()
-         try:
-           speech.stop()
-         finally:
-           speech.say("Decreasing Volume")
-           time.sleep(0.25)
-   if not GPIO.input(15):
-      while not GPIO.input(11):
-         speakingSpeed = speakingSpeed - 2
-         set_speaking_speed()
-         try:
+    print("DOWN")
+    if not GPIO.input(13):
+        if not GPIO.input(11):
+            print("volume down")
+            volume = volume - 2
+            set_volume()
+            try:
+                speech.stop()
+            finally:
+                speech.say("Decreasing Volume")
+                time.sleep(0.25)
+    if not GPIO.input(15):
+        if not GPIO.input(11):
+            print("speeking speed down")
+            speakingSpeed = speakingSpeed - 2
+            set_speaking_speed()
+            try:
+                speech.stop()
+            finally:
+                speech.say("Decreasing Speaking Speed")
+                time.sleep(0.25)
+    else:
+        try:
             speech.stop()
-         finally:
-            speech.say("Decreasing Speaking Speed")
-            time.sleep(0.25)
-   else:
-      try:
-         speech.stop()
-      finally:
-         speech.say("Please flip the switch to adjust sound settings")
-         speech.runAndWait()
-     
+        finally:
+            speech.say("Please flip the switch to adjust sound settings")
+            speech.runAndWait()
+    GPIO.add_event_detect(channel, GPIO.FALLING,
+                          callback=button_down, bouncetime=300)
+
+
 def power_off(channel):
-   print("shutting down device")
-   GPIO.cleanup()
-   save_settings()
-   if os.path.exists('image.jpg'):
-      os.remove("image.jpg")
-   try:
-      speech.stop()
-   finally:
-      ser.close()
-      speech.say("Device Turning Off")
-      speech.runAndWait()
-      os.system("sudo shutdown -h now")
+    GPIO.remove_event_detect(channel)
+    print("OFF")
+    print("shutting down device")
+    GPIO.cleanup()
+    save_settings()
+    if os.path.exists('image.jpg'):
+        os.remove("image.jpg")
+    try:
+        speech.stop()
+    finally:
+        ser.close()
+        speech.say("Device Turning Off")
+        speech.runAndWait()
+        os.system("sudo shutdown -h now")
 
 
 # Helper functions
@@ -324,13 +343,12 @@ def main():
     # Initialize GPIO
     GPIO.setwarnings(False)
     GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(11, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(12, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(13, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-    GPIO.setup(15, GPIO.IN, pull_up_down=GPIO.PUD_UP)
-
+    GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(11, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(12, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(13, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(15, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
     speech.say("Device Is Ready To Use")
     speech.runAndWait()
@@ -358,51 +376,55 @@ def main():
         result = engine.DetectWithImage(
             image, threshold=0.25, keep_aspect_ratio=True, relative_coord=False, top_k=10)
         try:
-           speech.stop()
+            speech.stop()
         finally:
-           if result:
-              distance = tfmini3.getTFminiData(ser)
-         
-              if distance != None:
-                 if distance < 7000:
-                    speech.say('The nearest object in front of you is ')
-                    dist_str = ''
-                    
-                    if distance > 100:
-                       dist_str += "approximately " + \
-                          str(distance / 100) + " meters ahead. "
-                    else:
-                       dist_str += "approximately " + str(distance) + " centimeters ahead. "
+            if result:
+                distance = tfmini3.getTFminiData(ser)
 
-                       speech.say(dist_str)
-                       speech.runAndWait()
+                if distance != None:
+                    if distance < 7000:
+                        speech.say('The nearest object in front of you is ')
+                        dist_str = ''
 
-              # Start thread to run text to speech, when done, quit thread
-              text_to_speech(result, labels)
-           else:
-              speech.say("No object detected")
-              speech.runAndWait()
+                        if distance > 100:
+                            dist_str += "approximately " + \
+                                str(distance / 100) + " meters ahead. "
+                        else:
+                            dist_str += "approximately " + \
+                                str(distance) + " centimeters ahead. "
 
-           # Sleep and check for hardware interrupt code
-           start_ms = time.time()
-           
-           while True:
-              print('wait')
-              time.sleep(0.25)
-              buttonMutex.acquire()
-    
-              if interrupt == 1:
-                 interrupt = 0
-                 buttonMutex.release()
-                 print("overriding loop")
-                 break
+                            speech.say(dist_str)
+                            speech.runAndWait()
 
-              buttonMutex.release()
-              elapsed_ms = time.time() - start_ms
+                # Start thread to run text to speech, when done, quit thread
+                text_to_speech(result, labels)
+            else:
+                try:
+                    speech.stop()
+                finally:
+                	speech.say("No object detected")
+                	speech.runAndWait()
 
-              # Wait time in between inferencee
-              if elapsed_ms > waitTime:
-                 break
+            # Sleep and check for hardware interrupt code
+            start_ms = time.time()
+
+            while True:
+                print('wait')
+                time.sleep(0.25)
+                buttonMutex.acquire()
+
+                if interrupt == 1:
+                    interrupt = 0
+                    buttonMutex.release()
+                    print("overriding loop")
+                    break
+
+                buttonMutex.release()
+                elapsed_ms = time.time() - start_ms
+
+                # Wait time in between inferencee
+                if elapsed_ms > waitTime:
+                    break
 
 
 if __name__ == '__main__':
