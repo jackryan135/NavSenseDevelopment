@@ -22,13 +22,15 @@ cd edgetpu_api
 bash ./install.sh
 
 # Start program on reboot
+cd ~/NavSense/InstallScripts/
 mv /etc/rc.local temp.txt
 cat temp.txt startup.txt > rc.local
 mv rc.local /etc/rc.local
 rm temp.txt
 
 # pyttsx
-pip3 install -r requirements.txt
+pip3 install pyttsx3 
+sudo apt-get install espeak
 
 
 sudo reboot
