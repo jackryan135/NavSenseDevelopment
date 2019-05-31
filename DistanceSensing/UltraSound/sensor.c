@@ -2,7 +2,6 @@
 #include <stdio.h>
 #include <wiringSerial.h>
 #include <wiringPi.h>
-#include <stdbool.h>
 
 #define BIN_PATTERN "%c%c%c%c%c%c%c%c"
 #define BYTE_TO_BINARY(byte) \
@@ -34,15 +33,14 @@ void printSonarData(char []);
 int fd;
 
 int main() {
-	wiringPiSetup();
 	fd = serialOpen(PORT, BAUD);
-
+	wiringPiSetup();
 	pinMode(rx, INPUT);
 	pinMode(tx, OUTPUT);
 	
 	digitalWrite(tx, HIGH);
 
-	while (true) loop();
+	loop();
 
 	return 0;
 } 
@@ -62,7 +60,6 @@ bool readSonar(char range[]) {
 	bool invalid = false;
 	
 	readSonarByte(&range[0]);
-	printf("range[0]: %c\n", range[0]);
 
 	if (range[0] == 'R') {
 
@@ -76,7 +73,7 @@ bool readSonar(char range[]) {
 
 void readSonarByte(char *value) {
 	*value = 0;
-	
+
 	while (digitalRead(rx) == 0);
 
 	if (digitalRead(rx) == HIGH) {
