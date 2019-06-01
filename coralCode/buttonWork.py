@@ -7,17 +7,17 @@ def hardware_interrupt(channel):
 
 def button_up(channel):
     print("UP")
-    if not GPIO.input(35):
+    if GPIO.input(35):
         print("Volume up")
-    elif not GPIO.input(38):
+    else:
         print("speeking speed up")
 
 
 def button_down(channel):
     print("DOWN")
-    if not GPIO.input(35):
+    if GPIO.input(35):
         print("volume down")
-    if not GPIO.input(38):
+    else:
         print("speeking speed down")
 
 
@@ -32,7 +32,6 @@ GPIO.setup(11, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(29, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(32, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(35, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(38, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
 # Start of button interrupt
 GPIO.add_event_detect(
