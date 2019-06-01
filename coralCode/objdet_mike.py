@@ -160,7 +160,6 @@ def multiples(dictionary, arr):
 def hardware_interrupt(channel):
     global interrupt
     global buttonMutex
-    global ser
 
     GPIO.remove_event_detect(channel)
 
@@ -244,6 +243,8 @@ def button_down(channel):
 
 
 def power_off(channel):
+    global ser
+
     GPIO.remove_event_detect(channel)
     print("OFF")
     print("shutting down device")
