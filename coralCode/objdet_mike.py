@@ -187,7 +187,6 @@ def button_up(channel):
         if speech.isBusy():
             speech.stop()
         speech.say("Increasing Volume")
-        time.sleep(0.25)
     else:
         print("speeking speed up")
         speakingSpeed = speakingSpeed + 2
@@ -195,8 +194,7 @@ def button_up(channel):
         if speech.isBusy():
             speech.stop()
         speech.say("Increasing Speaking Speed")
-        time.sleep(0.25)
-
+    time.sleep(0.25)
     GPIO.add_event_detect(channel, GPIO.FALLING,
                           callback=button_up, bouncetime=300)
 
@@ -208,32 +206,21 @@ def button_down(channel):
     GPIO.remove_event_detect(channel)
 
     print("DOWN")
-    if not GPIO.input(35):
-        if not GPIO.input(11):
-            print("volume down")
-            volume = volume - 2
-            set_volume()
-            try:
-                speech.stop()
-            finally:
-                speech.say("Decreasing Volume")
-                time.sleep(0.25)
-    if not GPIO.input(38):
-        if not GPIO.input(11):
-            print("speeking speed down")
-            speakingSpeed = speakingSpeed - 2
-            set_speaking_speed()
-            try:
-                speech.stop()
-            finally:
-                speech.say("Decreasing Speaking Speed")
-                time.sleep(0.25)
-    else:
-        try:
+    if GPIO.input(35):
+        print("Volume Down")
+        volume = volume - 2
+        set_volume()
+        if speech.isBusy():
             speech.stop()
-        finally:
-            speech.say("Please flip the switch to adjust sound settings")
-            speech.runAndWait()
+        speech.say("Decreasing Volume")
+    else:
+        print("speaking speed down")
+        speakingSpeed = speakingSpeed - 2
+        set_speaking_speed()
+        if speech.isBusy():
+            speech.stop()
+        speech.say("Decreasing Speaking Speed")
+    time.sleep(0.25)
     GPIO.add_event_detect(channel, GPIO.FALLING,
                           callback=button_down, bouncetime=300)
 
@@ -248,13 +235,12 @@ def power_off(channel):
     save_settings()
     if os.path.exists('image.jpg'):
         os.remove("image.jpg")
-    try:
+    if speech.isBusy():
         speech.stop()
-    finally:
-        ser.close()
-        speech.say("Device Turning Off")
-        speech.runAndWait()
-        os.system("sudo shutdown -h now")
+    ser.close()
+    speech.say("Device Turning Off")
+    speech.runAndWait()
+    os.system("sudo shutdown -h now")
 
 
 # Helper functions
@@ -340,10 +326,10 @@ def main():
     # Initialize GPIO
     GPIO.setwarnings(False)
     GPIO.setmode(GPIO.BOARD)
-    GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    GPIO.setup(11, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    GPIO.setup(29, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    GPIO.setup(32, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(11, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(29, GPIO.IN, pull_up_down=GPIO.PUD_UP)
+    GPIO.setup(32, GPIO.IN, pull_up_down=GPIO.PUD_UP)
     GPIO.setup(35, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
     speech.say("Device Is Ready To Use")
