@@ -344,7 +344,7 @@ def main():
     GPIO.setwarnings(False)
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(7, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     GPIO.setup(29, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     GPIO.setup(32, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     GPIO.setup(35, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
@@ -358,7 +358,7 @@ def main():
         3, GPIO.FALLING, callback=hardware_interrupt, bouncetime=300)
     # Button up
     GPIO.add_event_detect(
-        5, GPIO.FALLING, callback=button_up, bouncetime=300)
+        7, GPIO.FALLING, callback=button_up, bouncetime=300)
     # Button down
     GPIO.add_event_detect(
         29, GPIO.FALLING, callback=button_down, bouncetime=300)
