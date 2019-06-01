@@ -177,6 +177,7 @@ def hardware_interrupt(channel):
 def button_up(channel):
     global speakingSpeed
     global volume
+    global speech
 
     GPIO.remove_event_detect(channel)
 
@@ -208,6 +209,7 @@ def button_up(channel):
 def button_down(channel):
     global speakingSpeed
     global volume
+    global speech
 
     GPIO.remove_event_detect(channel)
 
@@ -256,14 +258,14 @@ def parse_settings():
     if not exists:
         file = open('settings.txt', 'w')
         file.write(str(150) + '\n')
-        file.write(str(1))
+        file.write(str(1.0))
         file.close()
         speakingSpeed = 150
         volume = 1
     else:
         file = open("settings.txt", 'r')
         speakingSpeed = int(file.readline())
-        volume = int(file.readline())
+        volume = double(file.readline())
         file.close()
         print('_______________________________________')
         print('Speaking Speed:')
@@ -289,6 +291,7 @@ def main():
     global interrupt
     global waitTime
     global ser
+    global speech
 
     # Models and label path directories
     model = 'models/mobilenet_ssd_v2_coco_quant_postprocess_edgetpu.tflite'
@@ -356,6 +359,8 @@ def main():
 
                 if distance != None:
                     if distance < 7000:
+                        if speech.isBusy():
+                            speech.stop()
                         speech.say('The nearest object in front of you is ')
                         dist_str = ''
 
@@ -365,7 +370,8 @@ def main():
                         else:
                             dist_str += "approximately " + \
                                 str(distance) + " centimeters ahead. "
-
+                            if speech.isBusy():
+                                speech.stop()
                             speech.say(dist_str)
                             speech.runAndWait()
 
