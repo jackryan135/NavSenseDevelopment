@@ -344,7 +344,7 @@ def main():
     GPIO.setup(11, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     GPIO.setup(29, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     GPIO.setup(32, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    GPIO.setup(35, GPIO.IN)
+    GPIO.setup(35, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
     speech.say("Device Is Ready To Use")
     speech.runAndWait()
