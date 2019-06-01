@@ -177,7 +177,7 @@ def button_up(channel):
     global speakingSpeed
     global volume
 
-    #GPIO.remove_event_detect(channel)
+    GPIO.remove_event_detect(channel)
 
     print("UP")
     if GPIO.input(35):
@@ -188,7 +188,7 @@ def button_up(channel):
             speech.stop()
         speech.say("Increasing Volume")
         time.sleep(0.25)
-    elif GPIO.input(38):
+    else:
         print("speeking speed up")
         speakingSpeed = speakingSpeed + 2
         set_speaking_speed()
@@ -197,8 +197,8 @@ def button_up(channel):
         speech.say("Increasing Speaking Speed")
         time.sleep(0.25)
 
-    #GPIO.add_event_detect(channel, GPIO.FALLING,
-                          #callback=button_up, bouncetime=300)
+    GPIO.add_event_detect(channel, GPIO.FALLING,
+                          callback=button_up, bouncetime=300)
 
 
 def button_down(channel):
@@ -344,8 +344,7 @@ def main():
     GPIO.setup(11, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     GPIO.setup(29, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     GPIO.setup(32, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    GPIO.setup(35, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    GPIO.setup(38, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(35, GPIO.IN)
 
     speech.say("Device Is Ready To Use")
     speech.runAndWait()
@@ -362,8 +361,7 @@ def main():
     # Power off
     GPIO.add_event_detect(
         32, GPIO.FALLING, callback=power_off, bouncetime=300)
-    # Switch up: 35
-    # Switch down: 38
+    # Switch: 35
 
     while True:
         camera.capture('image.jpg')
