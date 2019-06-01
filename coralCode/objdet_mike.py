@@ -63,11 +63,10 @@ def read_label_file(file_path):
 # Text to speech functions
 def text_to_speech(result, labels):
     string = constructString(labels, result)
-    try:
+    if speech.isBusy():
         speech.stop()
-    finally:
-        speech.say(string)
-        speech.runAndWait()
+    speech.say(string)
+    speech.runAndWait()
 
 
 def constructString(dictionary, objs):
@@ -351,58 +350,55 @@ def main():
 
         result = engine.DetectWithImage(
             image, threshold=0.25, keep_aspect_ratio=True, relative_coord=False, top_k=10)
-        try:
-            speech.stop()
-        finally:
-            if result and ser.is_open:
-                distance = tfmini3.getTFminiData(ser)
+        if result and ser.is_open:
+            distance = tfmini3.getTFminiData(ser)
 
-                if distance != None:
-                    if distance < 7000:
-                        if speech.isBusy():
-                            speech.stop()
-                        speech.say('The nearest object in front of you is ')
-                        dist_str = ''
+            if distance != None:
+                if distance < 7000:
+                    if speech.isBusy():
+                        speech.stop()
+                    speech.say('The nearest object in front of you is ')
+                    dist_str = ''
 
-                        if distance > 100:
-                            dist_str += "approximately " + \
-                                str(distance / 100) + " meters ahead. "
-                        else:
-                            dist_str += "approximately " + \
-                                str(distance) + " centimeters ahead. "
-                        if speech.isBusy():
-                            speech.stop()
-                        speech.say(dist_str)
-                        speech.runAndWait()
+                    if distance > 100:
+                        dist_str += "approximately " + \
+                            str(distance / 100) + " meters ahead. "
+                    else:
+                        dist_str += "approximately " + \
+                            str(distance) + " centimeters ahead. "
+                    if speech.isBusy():
+                        speech.stop()
+                    speech.say(dist_str)
+                    speech.runAndWait()
 
-                # Start thread to run text to speech, when done, quit thread
-                text_to_speech(result, labels)
-            else:
-                if speech.isBusy():
-                    speech.stop()
-                speech.say("No object detected")
-                speech.runAndWait()
+            # Start thread to run text to speech, when done, quit thread
+            text_to_speech(result, labels)
+        else:
+            if speech.isBusy():
+                speech.stop()
+            speech.say("No object detected")
+            speech.runAndWait()
 
-            # Sleep and check for hardware interrupt code
-            start_ms = time.time()
+        # Sleep and check for hardware interrupt code
+        start_ms = time.time()
 
-            while True:
-                print('wait')
-                time.sleep(0.25)
-                buttonMutex.acquire()
+        while True:
+            print('wait')
+            time.sleep(0.25)
+            buttonMutex.acquire()
 
-                if interrupt == 1:
-                    interrupt = 0
-                    buttonMutex.release()
-                    print("overriding loop")
-                    break
-
+            if interrupt == 1:
+                interrupt = 0
                 buttonMutex.release()
-                elapsed_ms = time.time() - start_ms
+                print("overriding loop")
+                break
 
-                # Wait time in between inferencee
-                if elapsed_ms > waitTime:
-                    break
+            buttonMutex.release()
+            elapsed_ms = time.time() - start_ms
+
+            # Wait time in between inferencee
+            if elapsed_ms > waitTime:
+                break
 
     print("OFF")
     print("shutting down device")
