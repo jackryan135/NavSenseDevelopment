@@ -6,9 +6,9 @@ sudo apt-get upgrade
 sudo rpi-update
 
 # TFMini
-mv /boot/config.txt temp.txt
+sudo mv /boot/config.txt temp.txt
 cat temp.txt config_edits.txt > config.txt
-mv config.txt /boot/config.txt
+sudo mv config.txt /boot/config.txt
 rm temp.txt
 
 # Google Coral Accelerator
@@ -23,9 +23,9 @@ bash ./install.sh
 
 # Start program on reboot
 cd ~/NavSense/InstallScripts/
-mv /etc/rc.local temp.txt
+sudo mv /etc/rc.local temp.txt
 cat temp.txt startup.txt > rc.local
-mv rc.local /etc/rc.local
+sudo mv rc.local /etc/rc.local
 rm temp.txt
 
 # pyttsx
