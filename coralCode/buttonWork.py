@@ -20,15 +20,22 @@ def button_up(channel):
 
 def button_down(channel):
     print("DOWN")
+    GPIO.remove_event_detect(channel)
     if GPIO.input(35):
         print("volume down")
     else:
         print("speeking speed down")
+    time.sleep(0.2)
+    GPIO.add_event_detect(channel, GPIO.FALLING,
+                          callback=button_down, bouncetime=300)
 
 
 def power_off(channel):
+    GPIO.remove_event_detect(channel)
     print("OFF")
-
+    time.sleep(0.2)
+    GPIO.add_event_detect(channel, GPIO.FALLING,
+                          callback=button_down, bouncetime=300)
 
 GPIO.setwarnings(False)
 GPIO.setmode(GPIO.BOARD)
