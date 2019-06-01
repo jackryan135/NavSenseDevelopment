@@ -1,4 +1,5 @@
 import RPi.GPIO as GPIO
+import time
 
 # Button interrupt function
 def hardware_interrupt(channel):
@@ -7,11 +8,15 @@ def hardware_interrupt(channel):
 
 def button_up(channel):
     print("UP")
+    GPIO.remove_event_detect(channel)
+
     if GPIO.input(35):
         print("Volume up")
     else:
         print("speeking speed up")
-
+    time.sleep(0.2)
+    GPIO.add_event_detect(channel, GPIO.FALLING,
+                          callback=button_up, bouncetime=300)
 
 def button_down(channel):
     print("DOWN")
