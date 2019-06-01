@@ -50,3 +50,4 @@ GPIO.add_event_detect(
 # Switch down: 38
 
 while True:
+    continue
