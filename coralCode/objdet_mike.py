@@ -350,7 +350,7 @@ def main():
 
         result = engine.DetectWithImage(
             image, threshold=0.25, keep_aspect_ratio=True, relative_coord=False, top_k=10)
-        if result and ser.is_open:
+        if result and ser.is_open and not end:
             distance = tfmini3.getTFminiData(ser)
 
             if distance != None:
@@ -382,7 +382,7 @@ def main():
         # Sleep and check for hardware interrupt code
         start_ms = time.time()
 
-        while True:
+        while not end:
             print('wait')
             time.sleep(0.25)
             buttonMutex.acquire()
