@@ -345,10 +345,10 @@ def main():
     GPIO.setmode(GPIO.BOARD)
     GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
     GPIO.setup(5, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    GPIO.setup(11, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    GPIO.setup(12, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    GPIO.setup(13, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-    GPIO.setup(15, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(29, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(32, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(35, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+    GPIO.setup(38, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 
     speech.say("Device Is Ready To Use")
     speech.runAndWait()
@@ -361,12 +361,12 @@ def main():
         5, GPIO.FALLING, callback=button_up, bouncetime=300)
     # Button down
     GPIO.add_event_detect(
-        11, GPIO.FALLING, callback=button_down, bouncetime=300)
+        29, GPIO.FALLING, callback=button_down, bouncetime=300)
     # Power off
     GPIO.add_event_detect(
-        12, GPIO.FALLING, callback=power_off, bouncetime=300)
-    # Switch up: 13
-    # Switch down: 15
+        32, GPIO.FALLING, callback=power_off, bouncetime=300)
+    # Switch up: 35
+    # Switch down: 38
 
     while True:
         camera.capture('image.jpg')
