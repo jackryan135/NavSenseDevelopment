@@ -43,6 +43,7 @@ speakingSpeed = 150
 interrupt = 0
 waitTime = 5
 volume = 1
+end = 0
 
 
 # Function to read labels from text files.
@@ -186,14 +187,12 @@ def button_up(channel):
         set_volume()
         if speech.isBusy():
             speech.stop()
-        speech.say("Increasing Volume")
     else:
         print("speeking speed up")
         speakingSpeed = speakingSpeed + 2
         set_speaking_speed()
         if speech.isBusy():
             speech.stop()
-        speech.say("Increasing Speaking Speed")
     time.sleep(0.25)
     GPIO.add_event_detect(channel, GPIO.FALLING,
                           callback=button_up, bouncetime=300)
@@ -212,35 +211,21 @@ def button_down(channel):
         set_volume()
         if speech.isBusy():
             speech.stop()
-        speech.say("Decreasing Volume")
     else:
         print("speaking speed down")
         speakingSpeed = speakingSpeed - 2
         set_speaking_speed()
         if speech.isBusy():
             speech.stop()
-        speech.say("Decreasing Speaking Speed")
     time.sleep(0.25)
     GPIO.add_event_detect(channel, GPIO.FALLING,
                           callback=button_down, bouncetime=300)
 
 
 def power_off(channel):
-    global ser
-
-    GPIO.remove_event_detect(channel)
-    print("OFF")
-    print("shutting down device")
-    GPIO.cleanup()
-    save_settings()
-    if os.path.exists('image.jpg'):
-        os.remove("image.jpg")
-    if speech.isBusy():
-        speech.stop()
-    ser.close()
-    speech.say("Device Turning Off")
-    speech.runAndWait()
-    os.system("sudo shutdown -h now")
+    global end
+    
+    end = 1
 
 
 # Helper functions
@@ -349,7 +334,7 @@ def main():
         32, GPIO.FALLING, callback=power_off, bouncetime=300)
     # Switch: 35
 
-    while True:
+    while not end:
         camera.capture('image.jpg')
         image = Image.open('image.jpg')
         # image.show()
@@ -359,7 +344,7 @@ def main():
         try:
             speech.stop()
         finally:
-            if result:
+            if result and ser.is_open:
                 distance = tfmini3.getTFminiData(ser)
 
                 if distance != None:
@@ -380,11 +365,10 @@ def main():
                 # Start thread to run text to speech, when done, quit thread
                 text_to_speech(result, labels)
             else:
-                try:
+                if speech.isBusy():
                     speech.stop()
-                finally:
-                	speech.say("No object detected")
-                	speech.runAndWait()
+                speech.say("No object detected")
+                speech.runAndWait()
 
             # Sleep and check for hardware interrupt code
             start_ms = time.time()
@@ -406,6 +390,19 @@ def main():
                 # Wait time in between inferencee
                 if elapsed_ms > waitTime:
                     break
+
+    print("OFF")
+    print("shutting down device")
+    GPIO.cleanup()
+    save_settings()
+    if os.path.exists('image.jpg'):
+        os.remove("image.jpg")
+    if speech.isBusy():
+        speech.stop()
+    ser.close()
+    speech.say("Device Turning Off")
+    speech.runAndWait()
+    os.system("sudo shutdown -h now")
 
 
 if __name__ == '__main__':
