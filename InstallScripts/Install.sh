@@ -29,8 +29,8 @@ mv rc.local /etc/rc.local
 rm temp.txt
 
 # pyttsx
-pip3 install pyttsx3 
 sudo apt-get install espeak
+pip3 install pyttsx3 
 
 
 sudo reboot
