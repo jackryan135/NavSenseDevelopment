@@ -177,7 +177,7 @@ def button_up(channel):
     global speakingSpeed
     global volume
 
-    GPIO.remove_event_detect(channel)
+    #GPIO.remove_event_detect(channel)
 
     print("UP")
     if GPIO.input(13):
@@ -196,19 +196,15 @@ def button_up(channel):
             speech.stop()
         speech.say("Increasing Speaking Speed")
         time.sleep(0.25)
-    else:
-        if speech.isBusy():        
-            speech.stop()
-        speech.say("Please flip the switch to adjust sound settings")
-        speech.runAndWait()
-    GPIO.add_event_detect(channel, GPIO.FALLING,
+
+    #GPIO.add_event_detect(channel, GPIO.FALLING,
                           callback=button_up, bouncetime=300)
 
 
 def button_down(channel):
     global speakingSpeed
     global volume
-  
+
     GPIO.remove_event_detect(channel)
 
     print("DOWN")
