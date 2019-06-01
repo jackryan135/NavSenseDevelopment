@@ -39,10 +39,10 @@ import os
 ser = serial.Serial("/dev/ttyAMA0", 115200)
 speech = pyttsx3.init()
 buttonMutex = Lock()
-speakingSpeed = 150
+speakingSpeed = 150 #goes up to 250
 interrupt = 0
 waitTime = 5
-volume = 1
+volume = 0.5 # goes up to 1
 end = 0
 
 
@@ -181,18 +181,25 @@ def button_up(channel):
     GPIO.remove_event_detect(channel)
 
     print("UP")
+    if speech.isBusy():
+        speech.stop()
     if GPIO.input(35):
         print("Volume up")
-        volume = volume + 2
-        set_volume()
-        if speech.isBusy():
-            speech.stop()
+        if volume < 1.0:
+            volume = volume + 0.1
+            set_volume()
+        else:
+            speech.say("Max Volume")
+            speech.runAndWait()
+
     else:
-        print("speeking speed up")
-        speakingSpeed = speakingSpeed + 2
-        set_speaking_speed()
-        if speech.isBusy():
-            speech.stop()
+        print("speaking speed up")
+        if speakingSpeed < 249:
+            speakingSpeed = speakingSpeed + 2
+            set_speaking_speed()
+        else:
+            speech.say("Max Speaking Speed")
+            speech.runAndWait()
     time.sleep(0.25)
     GPIO.add_event_detect(channel, GPIO.FALLING,
                           callback=button_up, bouncetime=300)
@@ -205,18 +212,18 @@ def button_down(channel):
     GPIO.remove_event_detect(channel)
 
     print("DOWN")
+    if speech.isBusy():
+        speech.stop()
     if GPIO.input(35):
         print("Volume Down")
-        volume = volume - 2
-        set_volume()
-        if speech.isBusy():
-            speech.stop()
+        if volume > 0:
+            volume = volume - 0.1
+            set_volume()
     else:
         print("speaking speed down")
-        speakingSpeed = speakingSpeed - 2
-        set_speaking_speed()
-        if speech.isBusy():
-            speech.stop()
+        if speakingSpeed > 1:
+            speakingSpeed = speakingSpeed - 2
+            set_speaking_speed()
     time.sleep(0.25)
     GPIO.add_event_detect(channel, GPIO.FALLING,
                           callback=button_down, bouncetime=300)
