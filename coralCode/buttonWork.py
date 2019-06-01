@@ -31,7 +31,7 @@ GPIO.setup(3, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(11, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(29, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
 GPIO.setup(32, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
-GPIO.setup(35, GPIO.IN, pull_up_down=GPIO.PUD_DOWN)
+GPIO.setup(35, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 
 # Start of button interrupt
 GPIO.add_event_detect(
