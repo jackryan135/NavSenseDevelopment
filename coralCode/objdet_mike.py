@@ -370,10 +370,10 @@ def main():
                         else:
                             dist_str += "approximately " + \
                                 str(distance) + " centimeters ahead. "
-                            if speech.isBusy():
-                                speech.stop()
-                            speech.say(dist_str)
-                            speech.runAndWait()
+                        if speech.isBusy():
+                            speech.stop()
+                        speech.say(dist_str)
+                        speech.runAndWait()
 
                 # Start thread to run text to speech, when done, quit thread
                 text_to_speech(result, labels)
