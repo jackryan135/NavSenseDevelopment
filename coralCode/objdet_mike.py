@@ -180,7 +180,7 @@ def button_up(channel):
     #GPIO.remove_event_detect(channel)
 
     print("UP")
-    if GPIO.input(13):
+    if GPIO.input(35):
         print("Volume up")
         volume = volume + 2
         set_volume()
@@ -188,7 +188,7 @@ def button_up(channel):
             speech.stop()
         speech.say("Increasing Volume")
         time.sleep(0.25)
-    elif GPIO.input(15):
+    elif GPIO.input(38):
         print("speeking speed up")
         speakingSpeed = speakingSpeed + 2
         set_speaking_speed()
@@ -198,7 +198,7 @@ def button_up(channel):
         time.sleep(0.25)
 
     #GPIO.add_event_detect(channel, GPIO.FALLING,
-                          callback=button_up, bouncetime=300)
+                          #callback=button_up, bouncetime=300)
 
 
 def button_down(channel):
@@ -208,7 +208,7 @@ def button_down(channel):
     GPIO.remove_event_detect(channel)
 
     print("DOWN")
-    if not GPIO.input(13):
+    if not GPIO.input(35):
         if not GPIO.input(11):
             print("volume down")
             volume = volume - 2
@@ -218,7 +218,7 @@ def button_down(channel):
             finally:
                 speech.say("Decreasing Volume")
                 time.sleep(0.25)
-    if not GPIO.input(15):
+    if not GPIO.input(38):
         if not GPIO.input(11):
             print("speeking speed down")
             speakingSpeed = speakingSpeed - 2
